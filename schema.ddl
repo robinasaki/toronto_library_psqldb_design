@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS Conference (
     conf_location TEXT NOT NULL, -- location of the conference
     conf_date DATE NOT NULL, -- date of the conference
     has_workshop BOOLEAN NOT NULL, -- if the conference has a workshop
+
     PRIMARY KEY (conf_location, conf_date)
 );
 
@@ -33,6 +34,7 @@ CREATE TABLE IF NOT EXISTS Submission (
     author_ids INT[] NOT NULL, -- author_id of the authors
     final_decision Conference.paper_decision NOT NULL, -- final decision of the submission
     organization TEXT NOT NULL, -- the organization of the submission
+
     PRIMARY KEY (submission_name, submission_type, author_ids)
 );
 
@@ -42,6 +44,7 @@ CREATE TABLE IF NOT EXISTS Authors (
     author_name TEXT NOT NULL, -- author name
     organization TEXT NOT NULL, -- organization of the author
     review_ids INT[], -- optional, review_ids of the submissions they reviewed
+
     PRIMARY KEY (author_id)
 );
 
@@ -51,7 +54,9 @@ CREATE TABLE IF NOT EXISTS Reviews (
     submission_id INT NOT NULL, -- submission_id of the reviewed submission
     recommendation review_recommendation_status NOT NULL, -- recommended decision of the review
     additional_conflicts TEXT, -- optional, additional conflict declaration
-    PRIMARY KEY (review_id)
+
+    PRIMARY KEY (review_id),
+    FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
 );
 
 -- TODO: Constraint: at least one author on each paper must be a reviewer
@@ -70,7 +75,12 @@ CREATE TABLE IF NOT EXISTS PosterSessions (
     conf_id INT NOT NULL,
     submission_id INT[] NOT NULL,
     start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL
+    end_time TIMESTAMP NOT NULL,
+
+    CHECK(start_time < end_time),
+
+    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id),
+    FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
 );
 
 -- Metadata of the paper sessions
@@ -80,6 +90,10 @@ CREATE TABLE IF NOT EXISTS PaperSessions (
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
     chair -- TODO
+
+    CHECK(start_time < end_time),
+
+    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
 );
 
 -- TODO: Constraint: chair not in authors
@@ -93,6 +107,13 @@ CREATE TABLE IF NOT EXISTS PaperSubSessions (
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL
 
+    CHECK(start_time < end_time),
+
+    PRIMARY KEY (subsession_id),
+
+    FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
+
+
     -- TODO: Constraint: enforce start_time >= PaperSessions.start_time, end_time <= PaperSessions.end_time
 );
 
@@ -100,12 +121,37 @@ CREATE TABLE IF NOT EXISTS PaperSubSessions (
 -- 1. having a paper and a presentation at the same time
 -- 2. not sole author in either
 
-CREATE TABLE IF NOT EXISTS attendees (
+-- All attendees of all events
+CREATE TABLE IF NOT EXISTS Attendees (
     attendee_id INT NOT NULL,
     conf_id INT NOT NULL,
     attendee_type attendee_type NOT NULL,
-    workshop_registration BOOLEAN NOT NULL,
-    PRIMARY KEY (attendee_id)
+
+    PRIMARY KEY (attendee_id, conf_id),
+
+    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
 );
 
 -- TODO: Constraint: at least one author on every accpeted submission must be an attendee for the conference
+
+CREATE TABLE IF NOT EXISTS Workshops (
+    workshop_id INT NOT NULL,
+    conf_id INT NOT NULL,
+    facilitator TEXT NOT NULL,
+
+    PRIMARY KEY (workshop_id),
+
+    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
+)
+
+CREATE TABLE IF NOT EXISTS WorkshopsAttendees (
+    workshop_id INT NOT NULL,
+    attendee_id INT NOT NULL,
+
+    PRIMARY KEY (workshop_id, attendee_id),
+
+    FOREIGN KEY (attendee_id) REFERENCES Attendee(attendee_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
