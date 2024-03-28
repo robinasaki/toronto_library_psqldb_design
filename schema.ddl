@@ -18,8 +18,9 @@ CREATE TYPE Conference.attendee_type AS ENUM('student', 'other');
 CREATE TABLE IF NOT EXISTS Conference (
     conf_id INT NOT NULL, -- conference id
     conf_name TEXT NOT NULL, -- name of the conferennce
-    conf_location TEXT, -- location of the conference
-    conf_date NOT NULL, -- date of the conference
+    conf_location TEXT NOT NULL, -- location of the conference
+    conf_date DATE NOT NULL, -- date of the conference
+    has_workshop BOOLEAN NOT NULL, -- if the conference has a workshop
     PRIMARY KEY (conf_location, conf_date)
 );
 
@@ -100,6 +101,11 @@ CREATE TABLE IF NOT EXISTS PaperSubSessions (
 -- 2. not sole author in either
 
 CREATE TABLE IF NOT EXISTS attendees (
+    attendee_id INT NOT NULL,
     conf_id INT NOT NULL,
     attendee_type attendee_type NOT NULL,
+    workshop_registration BOOLEAN NOT NULL,
+    PRIMARY KEY (attendee_id)
 );
+
+-- TODO: Constraint: at least one author on every accpeted submission must be an attendee for the conference
