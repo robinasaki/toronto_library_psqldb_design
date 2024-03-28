@@ -5,11 +5,18 @@ SET SEARCH_PATH TO Conference;
 -- Type of a submission
 CREATE TYPE Conference.submission_type AS ENUM('papers', 'posters');
 
--- Accept status of a paper submission
-CREATE TYPE Conference.paper_accept_status AS ENUM('accept', 'reject');
+-- Recommendation of a review
+CREATE TYPE Conference.review_recommendation_status AS ENUM('accept', 'reject');
+
+-- Final decision on a paper
+CREATE TYPE Conference.paper_decision AS ENUM('accept', 'reject', 'pending');
+
+-- Attendee type
+CREATE TYPE Conference.attendee_type AS ENUM('student', 'other');
 
 -- Metadata on a conference
 CREATE TABLE IF NOT EXISTS Conference (
+    conf_id INT NOT NULL, -- conference id
     conf_name TEXT NOT NULL, -- name of the conferennce
     conf_location TEXT, -- location of the conference
     conf_date NOT NULL, -- date of the conference
@@ -18,23 +25,81 @@ CREATE TABLE IF NOT EXISTS Conference (
 
 -- Metadata on submissions
 CREATE TABLE IF NOT EXISTS Submission (
-    submission_id INT NOT NULL,
-    submission_name TEXT NOT NULL,
-    submission_type Conference.submission_type NOT NULL,
-    author_ids INT[] NOT NULL,
-    PRIMARY KEY (submission_id)
+    submission_id INT UNIQUE NOT NULL, -- unique submission_id
+    submission_name TEXT NOT NULL, -- submission name
+    submission_type Conference.submission_type NOT NULL, -- submission type, either a paper or a poster
+    sole_author_ids INT[] NOT NULL, -- author_id of the sole authors
+    author_ids INT[] NOT NULL, -- author_id of the authors
+    final_decision Conference.paper_decision NOT NULL, -- final decision of the submission
+    organization TEXT NOT NULL, -- the organization of the submission
+    PRIMARY KEY (submission_name, submission_type, author_ids)
 );
 
 -- Metadata of the authors
 CREATE TABLE IF NOT EXISTS Authors (
-    author_id INT NOT NULL,
-    author_name TEXT NOT NULL,
+    author_id INT NOT NULL, -- unique author_id
+    author_name TEXT NOT NULL, -- author name
+    organization TEXT NOT NULL, -- organization of the author
     review_ids INT[], -- optional, review_ids of the submissions they reviewed
     PRIMARY KEY (author_id)
 );
 
 -- Metadata of the reviews
 CREATE TABLE IF NOT EXISTS Reviews (
-    review_id INT NOT NULL,
-    decision Conference.paper_accept_status NOT NULL
+    review_id INT NOT NULL, -- unique review_id
+    submission_id INT NOT NULL, -- submission_id of the reviewed submission
+    recommendation review_recommendation_status NOT NULL, -- recommended decision of the review
+    additional_conflicts TEXT, -- optional, additional conflict declaration
+    PRIMARY KEY (review_id)
+);
+
+-- TODO: Constraint: at least one author on each paper must be a reviewer
+
+-- TODO: Constraint: an author cannot review its own paper
+
+-- TODO: Constraint: an author cannot review papers from the same organization
+
+-- TODO: Constraint: a paper must have 3 reivews before a final decision
+
+-- TODO: Constraint: a paper cannot be accepted without any 'accept' review suggestion
+
+
+-- Metadata of the poster sessions
+CREATE TABLE IF NOT EXISTS PosterSessions (
+    conf_id INT NOT NULL,
+    submission_id INT[] NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL
+);
+
+-- Metadata of the paper sessions
+CREATE TABLE IF NOT EXISTS PaperSessions (
+    conf_id INT NOT NULL,
+    subsession_id INT[] NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    chair -- TODO
+);
+
+-- TODO: Constraint: chair not in authors
+
+-- TODO: Constraint (?): chair has no other schedule
+
+-- Subsessions under paper sessions
+CREATE TABLE IF NOT EXISTS PaperSubSessions (
+    subsession_id INT NOT NULL,
+    submission_id INT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL
+
+    -- TODO: Constraint: enforce start_time >= PaperSessions.start_time, end_time <= PaperSessions.end_time
+);
+
+-- TODO: Constraint: an author can have 2 presentations at the same time iff
+-- 1. having a paper and a presentation at the same time
+-- 2. not sole author in either
+
+CREATE TABLE IF NOT EXISTS attendees (
+    conf_id INT NOT NULL,
+    attendee_type attendee_type NOT NULL,
 );
