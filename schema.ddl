@@ -34,6 +34,19 @@ CREATE TABLE IF NOT EXISTS Submissions (
     )
 );
 
+-- Trigger: a paper cannot be accepted without any 'accepted' review suggestion
+CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
+    IF EXISTS (SELECT 1 FROM Reviews RV WHERE NEW.submission_id = RV.submission_id 
+        AND NEW.paper_decision = 'accepted' 
+        AND (SELECT COUNT(suggested_decision) FROM Reviews 
+            WHERE submission_id = NEW.submission_id
+            AND suggested_decision = 'accepted') = 0) THEN
+        RAISE EXCEPTION 'A paper cannot be accepted without any accepted review suggestion'
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS PaperSubmissions (
     submission_id INT NOT NULL,
     paper_decision Conference.paper_decision,
@@ -60,8 +73,8 @@ CREATE TABLE IF NOT EXISTS People (
     PRIMARY KEY (person_id)
 );
 
--- A trigger to ensure that each author must have at least one submission
-CREATE FUNCTION check_author_exists() RETURNS TRIGGER AS $$
+-- Trigger: each author must have at least one submission
+CREATE OR REPLACE FUNCTION CheckAuthorExists() RETURNS TRIGGER AS $$
 DECLARE
     author_found BOOLEAN;
 BEGIN
@@ -72,13 +85,12 @@ BEGIN
     IF NOT author_found THEN
         RAISE EXCEPTION 'person_id must be an author in Submissions';
     END IF;
-
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_check_author_before_insert_or_update
 BEFORE INSERT OR UPDATE ON Authors
-FOR EACH ROW EXECUTE FUNCTION check_author_exists();
+FOR EACH ROW EXECUTE FUNCTION CheckAuthorExists();
 
 CREATE TABLE IF NOT EXISTS Authors (
     person_id INT NOT NULL,
@@ -87,17 +99,38 @@ CREATE TABLE IF NOT EXISTS Authors (
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
 
+-- Trigger: an author cannot review its own paper
+CREATE OR REPLACE FUNCTION ReviewCheck() RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Submissions WHERE submission_id = NEW.submission_id AND NEW.person_id = ANY(author_ids)) THEN
+        RAISE EXCEPTION 'An author cannot review its own paper';
+    END IF;
+    ELSIF EXISTS (SELECT 1 FROM Submissions SB WHERE submission_id = NEW.submission_id AND NEW.organization_id = SB.organization_id) THEN
+        RAISE EXCEPTION 'Cannot review papers from the same organization';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_review_check
+BEFORE INSERT OR UPDATE ON Reviews
+FOR EACH ROW EXECUTE FUNCTION ReviewCheck();
 CREATE TABLE IF NOT EXISTS Reviews (
+    person_id INT NOT NULL,
     review_id INT NOT NULL,
     submission_id INT NOT NULL,
     suggested_decision review_recommendation_status NOT NULL,
-    comments TEXT,
-    additional_conflicts TEXT,
+    comments TEXT, -- optional, comments on the review
+    additional_conflicts TEXT, -- optional, additional conflict declaration
 
     PRIMARY KEY (review_id),
 
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 )
 
-
+-- Constraint: an author cannot review its own paper
+CONSTRAINT no_self_review CHECK (
+    -- I want person_id NOT IN author_ids (from Submissions)
+    SELECT person_id, submission_id FROM Reviews RV
+    JOIN Submissions SM ON RV.submission_id = SM.submission_id
+)
 
