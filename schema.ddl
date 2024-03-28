@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Conference (
     conf_date DATE NOT NULL, -- date of the conference
     has_workshop BOOLEAN NOT NULL, -- if the conference has a workshop
 
-    PRIMARY KEY (conf_location, conf_date)
+    PRIMARY KEY (conf_location, conf_date)`
 );
 
 -- Metadata on submissions
@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
 
     PRIMARY KEY (review_id),
     FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- TODO: Constraint: at least one author on each paper must be a reviewer
@@ -79,8 +80,10 @@ CREATE TABLE IF NOT EXISTS PosterSessions (
 
     CHECK(start_time < end_time),
 
-    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id),
+    FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Metadata of the paper sessions
@@ -94,6 +97,7 @@ CREATE TABLE IF NOT EXISTS PaperSessions (
     CHECK(start_time < end_time),
 
     FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- TODO: Constraint: chair not in authors
@@ -112,6 +116,7 @@ CREATE TABLE IF NOT EXISTS PaperSubSessions (
     PRIMARY KEY (subsession_id),
 
     FOREIGN KEY (submission_id) REFERENCES Submission(submission_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 
 
     -- TODO: Constraint: enforce start_time >= PaperSessions.start_time, end_time <= PaperSessions.end_time
@@ -130,6 +135,7 @@ CREATE TABLE IF NOT EXISTS Attendees (
     PRIMARY KEY (attendee_id, conf_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- TODO: Constraint: at least one author on every accpeted submission must be an attendee for the conference
@@ -142,6 +148,7 @@ CREATE TABLE IF NOT EXISTS Workshops (
     PRIMARY KEY (workshop_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conference(conf_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 )
 
 CREATE TABLE IF NOT EXISTS WorkshopsAttendees (
