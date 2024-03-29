@@ -24,36 +24,21 @@ CREATE TABLE IF NOT EXISTS Submissions (
     submission_id INT NOT NULL,
     submission_title TEXT NOT NULL,
     conf_id INT NOT NULL,
-    author_ids INT[] NOT NULL,
-    sole_author_ids INT[] NOT NULL,
-    organization TEXT NOT NULL, -- some scholars write papers for other schools
+    organization TEXT NOT NULL, -- not necessary related to the authors' organization
 
     PRIMARY KEY (submission_id),
 
-    FOREIGN KEY (author_ids) REFERENCES Authors(person_id),
-    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
-    
-    -- `sole_author_ids` must be a subset of `author_ids`
-    CONSTRAINT sole_subset CHECK (
-        author_ids @> sole_author_ids
-    )
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id)
 );
 
 CREATE TABLE IF NOT EXISTS PaperSubmissions (
     submission_id INT NOT NULL,
     paper_decision Conference.paper_decision,
-    review_ids INT[]
 
-    PRIMARY KEY (submission_id),
+    PRIMARY KEY (submission_id), 
+    -- we could remove the above primary key, but for marking purpose we decided to not to.
 
-    FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id),
-
-    -- a paper must have at least 3 reviews to be accpeted
-    CONSTRAINT accepted_cond CHECK (
-        (paper_decision != 'accepted')
-        OR
-        (paper_decision = 'accpeted' AND COUNT(review_ids) >= 3)
-    )
+    FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
 
 CREATE TABLE IF NOT EXISTS People (
@@ -64,14 +49,20 @@ CREATE TABLE IF NOT EXISTS People (
     phone_num INT NOT NULL,
     email TEXT NOT NULL,
     organization TEXT NOT NULL,
-    type Conference.attendee_type
+    type Conference.attendee_type NOT NULL,
 
     PRIMARY KEY (person_id)
 );
 
-CREATE TABLE IF NOT EXISTS Authors (
+-- Instances of paper contributions.
+CREATE TABLE IF NOT EXISTS Contributes (
+    submission_id INT NOT NULL,
     person_id INT NOT NULL,
+    sole_author BOOLEAN NOT NULL,
 
+    PRIMARY KEY (submission_id, person_id),
+
+    FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id),
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
 
@@ -89,12 +80,32 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
 
--- Constraint: an author cannot review its own paper
-CONSTRAINT no_self_review CHECK (
-    -- I want person_id NOT IN author_ids (from Submissions)
-    SELECT person_id, submission_id FROM Reviews RV
-    JOIN Submissions SM ON RV.submission_id = SM.submission_id
-);
+-- Trigger: a paper must have at least 3 reviews to be accpeted
+CREATE OR REPLACE FUNCTION CheckAtLeastThreeReviews RETURNS TRIGGER AS $$
+    IF (NEW.paper_decision = 'accepted') THEN
+        IF ((SELECT COUNT(*) FROM Review RV WHERE RV.submission_id = NEW.submission_id) < 3) THEN
+            RAISE EXCEPTION 'A paper must have 3 reviews to be accepted';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgCheckAtLeastThreeReviews
+BEFORE INSERT OR UPDATE ON PaperSubmissions
+FOR EACH ROW EXECUTE FUNCTION CheckAtLeastThreeReviews();
+
+-- Trigger: an author cannot review its own paper
+CREATE OR REPLACE FUNCTION CheckSelfReview RETURNS TRIGGER AS $$
+    IF EXISTS (SELECT 1 FROM Contributes PC WHERE PC.person_id = NEW.person_id
+        AND PC.submission_id = NEW.submission_id) THEN
+            RAISE EXCEPTION 'An author cannot review its own paper.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgCheckSelfReview
+BEFORE INSERT OR UPDATE ON Reviews
+FOR EACH ROW EXECUTE FUNCTION CheckSelfReview();
 
 -- Trigger: a paper cannot be accepted without any 'accepted' review suggestion
 CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
@@ -103,13 +114,13 @@ CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
         AND (SELECT COUNT(suggested_decision) FROM Reviews 
             WHERE submission_id = NEW.submission_id
             AND suggested_decision = 'accepted') = 0) THEN
-            RAISE EXCEPTION 'A paper cannot be accepted without any accepted review suggestion';
+            RAISE EXCEPTION 'A paper cannot be accepted without any accepted review suggestion.';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgCheckAcceptReview
-BEFORE INSERT OR UPDATE ON PaperSessions
+BEFORE INSERT OR UPDATE ON PaperSubmissions
 FOR EACH ROW EXECUTE FUNCTION CheckAcceptReview();
 
 -- Trigger: each author must have at least one submission
@@ -117,12 +128,11 @@ CREATE OR REPLACE FUNCTION CheckAuthorExists() RETURNS TRIGGER AS $$
 DECLARE
     author_found BOOLEAN;
 BEGIN
-    -- Check if person_id exists in any author_ids array in the Submissions table
-    SELECT EXISTS(SELECT 1 FROM Submissions WHERE person_id = ANY(author_ids))
+    SELECT EXISTS (SELECT 1 FROM Contributions WHERE person_id = NEW.person_id)
     INTO author_found;
 
     IF NOT author_found THEN
-        RAISE EXCEPTION 'person_id must be an author in Submissions';
+        RAISE EXCEPTION 'person_id must have at least one submission.';
     END IF;
     RETURN NEW;
 END;
@@ -135,9 +145,9 @@ FOR EACH ROW EXECUTE FUNCTION CheckAuthorExists();
 CREATE OR REPLACE FUNCTION ReviewCheck() RETURNS TRIGGER AS $$
 BEGIN
     -- an author cannot review its own paper
-    IF EXISTS (SELECT 1 FROM Submissions WHERE submission_id 
-        = NEW.submission_id AND NEW.person_id = ANY(author_ids)) THEN
-            RAISE EXCEPTION 'An author cannot review its own paper';
+    IF EXISTS (SELECT 1 FROM Contribtues WHERE submission_id = NEW.submission_id 
+        AND Contributes.person_id = NEW.person_id) THEN
+            RAISE EXCEPTION 'An author cannot review its own paper.';
     END IF;
 
     -- cannot review papers from its organization
@@ -162,13 +172,13 @@ FOR EACH ROW EXECUTE FUNCTION ReviewCheck();
 -- Trigger: at least one author on each paper must be a reviewer
 CREATE OR REPLACE FUNCTION ReviewEnforceCheck() RETURN TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Reviews WHERE person_id = ANY(NEW.author_ids)) THEN
+    IF NOT EXISTS (SELECT 1 FROM Reviews WHERE person_id = NEW.person_id) THEN
         RAISE EXCEPTION 'At least one author on each paper must be a reviewer';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgReviewEnforceCheck
-BEFORE INSERT OR UPDATE ON PaperSubmissions
+BEFORE INSERT OR UPDATE ON Contributes
 FOR EACH ROW EXECUTE FUNCTION ReviewEnforceCheck();
 
