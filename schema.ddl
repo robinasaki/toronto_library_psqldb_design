@@ -12,21 +12,26 @@ CREATE TABLE IF NOT EXISTS Conferences (
     conf_id INT UNIQUE NOT NULL,
     conf_name TEXT NOT NULL,
     conf_location TEXT NOT NULL,
-    conf_date DATE NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
     
-    PRIMARY KEY (conf_location, conf_date)
+    PRIMARY KEY (conf_location, start_time, end_time),
+
+    CHECK(start_time < end_time)
 );
 
 CREATE TABLE IF NOT EXISTS Submissions (
     submission_id INT NOT NULL,
     submission_title TEXT NOT NULL,
-    organization_id INT NOT NULL,
+    conf_id INT NOT NULL,
     author_ids INT[] NOT NULL,
     sole_author_ids INT[] NOT NULL,
+    organization TEXT NOT NULL, -- some scholars write papers for other schools
 
     PRIMARY KEY (submission_id),
 
-    FOREIGN KEY (author_ids) REFERENCES Authors(person_id)
+    FOREIGN KEY (author_ids) REFERENCES Authors(person_id),
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
     
     -- `sole_author_ids` must be a subset of `author_ids`
     CONSTRAINT sole_subset CHECK (
@@ -53,16 +58,19 @@ CREATE TABLE IF NOT EXISTS PaperSubmissions (
 
 CREATE TABLE IF NOT EXISTS People (
     person_id INT NOT NULL,
-    person_name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    middle_name TEXT, -- optional, middle name
+    last_name TEXT NOT NULL, 
     phone_num INT NOT NULL,
     email TEXT NOT NULL,
+    organization TEXT NOT NULL,
+    type Conference.attendee_type
 
     PRIMARY KEY (person_id)
 );
 
 CREATE TABLE IF NOT EXISTS Authors (
     person_id INT NOT NULL,
-    organization_id INT NOT NULL,
 
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
@@ -77,6 +85,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
 
     PRIMARY KEY (review_id),
 
+    FOREIGN KEY (person_id) REFERENCES People(person_id),
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
 
@@ -122,14 +131,26 @@ CREATE TRIGGER TrgCheckAuthorExists
 BEFORE INSERT OR UPDATE ON Authors
 FOR EACH ROW EXECUTE FUNCTION CheckAuthorExists();
 
--- Trigger: an author cannot review its own paper
+-- Trigger: an author cannot review its own paper and papers from its organization
 CREATE OR REPLACE FUNCTION ReviewCheck() RETURNS TRIGGER AS $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM Submissions WHERE submission_id = NEW.submission_id AND NEW.person_id = ANY(author_ids)) THEN
-        RAISE EXCEPTION 'An author cannot review its own paper';
+    -- an author cannot review its own paper
+    IF EXISTS (SELECT 1 FROM Submissions WHERE submission_id 
+        = NEW.submission_id AND NEW.person_id = ANY(author_ids)) THEN
+            RAISE EXCEPTION 'An author cannot review its own paper';
     END IF;
-    ELSIF EXISTS (SELECT 1 FROM Submissions SB WHERE submission_id = NEW.submission_id AND NEW.organization_id = SB.organization_id) THEN
-        RAISE EXCEPTION 'Cannot review papers from the same organization';
+
+    -- cannot review papers from its organization
+    ELSIF EXISTS (
+        SELECT 1
+        FROM Reviews RV
+        JOIN People P ON RV.person_id = P.person_id
+        JOIN Submissions S ON RV.submission_id = S.submission_id
+        WHERE RV.person_id = NEW.person_id
+        AND RV.submission_id = NEW.submission_id
+        AND P.organization = S.organization
+        ) THEN
+            RAISE EXCEPTION 'An author cannot review papers from its own organization.';
     END IF;
     RETURN NEW;
 END;
