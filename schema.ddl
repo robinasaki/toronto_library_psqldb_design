@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Person (
     email TEXT NOT NULL,
 
     phone CHAR(15) NOT NULL,
-
+    -- A person's associated organization
     org TEXT NOT NULL,
 
     type participant_type NOT NULL
@@ -79,8 +79,10 @@ CREATE TABLE IF NOT EXISTS SubmissionContributor (
     is_reviewer BOOLEAN NOT NULL,
 
     PRIMARY KEY (submission_id, author_order_num),
-    FOREIGN KEY (submission_id) REFERENCES Submission (submission_id),
+    FOREIGN KEY (submission_id) REFERENCES Submission (submission_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (contributor) REFERENCES ConferenceAttendee (attendee)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Reviewer
@@ -92,8 +94,10 @@ CREATE TABLE IF NOT EXISTS Reviewer (
     decision decision_type NOT NULL,
 
     PRIMARY KEY (person_id, submission_id),
-    FOREIGN KEY (person_id) REFERENCES ConferenceAttendee (attendee),
+    FOREIGN KEY (person_id) REFERENCES ConferenceAttendee (attendee)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (submission_id) REFERENCES Submission (submission_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS ConferenceSession (
@@ -104,6 +108,9 @@ CREATE TABLE IF NOT EXISTS ConferenceSession (
     end_time TIMESTAMP NOT NULL,
 
     type submission_and_session_type NOT NULL
+
+    FOREIGN KEY (session_id) REFERENCES ConferenceSession (session_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS SessionChair (

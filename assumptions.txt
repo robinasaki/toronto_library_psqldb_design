@@ -1,2 +1,4 @@
 - Item can only be presented once
 - attendee type is global across all conferences (e.g. if an attendee is 'student' at one conference, they are 'student' at ALL conferences)
+- We don't care (right now) if the person being referenced is actually attending the event in question
+- Authors on a submission need not be the same. You can submit work for different organziations (e.g. A Princeton PhD can submit a paper for UofT)
