@@ -78,14 +78,14 @@ CREATE TABLE IF NOT EXISTS Reviews (
     PRIMARY KEY (review_id),
 
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
-)
+);
 
 -- Constraint: an author cannot review its own paper
 CONSTRAINT no_self_review CHECK (
     -- I want person_id NOT IN author_ids (from Submissions)
     SELECT person_id, submission_id FROM Reviews RV
     JOIN Submissions SM ON RV.submission_id = SM.submission_id
-)
+);
 
 -- Trigger: a paper cannot be accepted without any 'accepted' review suggestion
 CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
@@ -94,7 +94,7 @@ CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
         AND (SELECT COUNT(suggested_decision) FROM Reviews 
             WHERE submission_id = NEW.submission_id
             AND suggested_decision = 'accepted') = 0) THEN
-        RAISE EXCEPTION 'A paper cannot be accepted without any accepted review suggestion'
+            RAISE EXCEPTION 'A paper cannot be accepted without any accepted review suggestion';
     END IF;
     RETURN NEW;
 END;
@@ -118,7 +118,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER trg_check_author_before_insert_or_update
+CREATE TRIGGER TrgCheckAuthorExists
 BEFORE INSERT OR UPDATE ON Authors
 FOR EACH ROW EXECUTE FUNCTION CheckAuthorExists();
 
@@ -134,8 +134,20 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER trg_review_check
+CREATE TRIGGER TrgReviewCheck
 BEFORE INSERT OR UPDATE ON Reviews
 FOR EACH ROW EXECUTE FUNCTION ReviewCheck();
 
+-- Trigger: at least one author on each paper must be a reviewer
+CREATE OR REPLACE FUNCTION ReviewEnforceCheck() RETURN TRIGGER AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Reviews WHERE person_id = ANY(NEW.author_ids)) THEN
+        RAISE EXCEPTION 'At least one author on each paper must be a reviewer';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgReviewEnforceCheck
+BEFORE INSERT OR UPDATE ON PaperSubmissions
+FOR EACH ROW EXECUTE FUNCTION ReviewEnforceCheck();
 
