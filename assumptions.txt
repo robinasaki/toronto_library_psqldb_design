@@ -1,0 +1,2 @@
+- Item can only be presented once
+- attendee type is global across all conferences (e.g. if an attendee is 'student' at one conference, they are 'student' at ALL conferences)
