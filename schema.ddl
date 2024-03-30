@@ -182,3 +182,53 @@ CREATE TRIGGER TrgReviewEnforceCheck
 BEFORE INSERT OR UPDATE ON Contributes
 FOR EACH ROW EXECUTE FUNCTION ReviewEnforceCheck();
 
+CREATE TABLE IF NOT EXISTS ConferenceSessions (
+    conf_id INT NOT NULL,
+    session_id INT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+
+    PRIMARY KEY (conf_id),
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
+
+    CHECK (start_time < end_time)
+);
+
+-- Trigger: the session's start_time must <= conference's start_time, and end_time
+CREATE OR REPLACE FUNCTION SessionTimeCheck() RETURN TRIGGER $$
+    IF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
+        AND Conferences.start_time > NEW.start_time) THEN
+            RAISE EXCEPTION 'Session start_time must <= conference start_time';
+    END IF;
+    ELSIF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
+        AND Conferneces.end_time < NEW.end_time) THEN
+            RAISE EXCEPTION 'Session end_time must > conference end_time';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgSessionTimeCheck
+BEFORE INSERT OR UPDATE ON ConferenceSessions
+FOR EACH ROW EXECUTE FUNCTION SessionTimeCheck();
+
+CREATE TABLE IF NOT EXISTS SessionChair (
+    session_id INT NOT NULL,
+    person_id INT NOT NULL,
+
+    PRIMARY KEY (session_id, person_id),
+
+    FOREIGN KEY (session_id) REFERENCES ConferenceSessions(session_id),
+    FOREIGN KEY (person_id) REFERENCES People(person_id)
+);
+
+-- Trigger: chair is not an author of any presentation in that conference
+CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURN TRIGGER AS $$
+    IF EXISTS (SELECT )
+
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgChairNotAuthor
+BEFORE INSERT OR UPDATE ON SessionChair
+FOR EACH ROW EXECUTE FUNCTION ChairNotAuthor();
