@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
     person_id INT NOT NULL,
     review_id INT NOT NULL,
     submission_id INT NOT NULL,
-    suggested_decision review_recommendation_status NOT NULL,
+    suggested_decision paper_decision NOT NULL,
     comments TEXT, -- optional, comments on the review
     additional_conflicts TEXT, -- optional, additional conflict declaration
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
 );
 
 -- Trigger: a paper must have at least 3 reviews to be accpeted
-CREATE OR REPLACE FUNCTION CheckAtLeastThreeReviews RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION CheckAtLeastThreeReviews() RETURNS TRIGGER AS $$
 BEGIN
     IF (NEW.paper_decision = 'accepted') THEN
         IF ((SELECT COUNT(*) FROM Review RV WHERE RV.submission_id = NEW.submission_id) < 3) THEN
@@ -96,7 +96,7 @@ BEFORE INSERT OR UPDATE ON PaperSubmissions
 FOR EACH ROW EXECUTE FUNCTION CheckAtLeastThreeReviews();
 
 -- Trigger: an author cannot review its own paper
-CREATE OR REPLACE FUNCTION CheckSelfReview RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION CheckSelfReview() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM Contributes PC WHERE PC.person_id = NEW.person_id
         AND PC.submission_id = NEW.submission_id) THEN
@@ -110,7 +110,7 @@ BEFORE INSERT OR UPDATE ON Reviews
 FOR EACH ROW EXECUTE FUNCTION CheckSelfReview();
 
 -- Trigger: a paper cannot be accepted without any 'accepted' review suggestion
-CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION CheckAcceptReview() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM Reviews RV WHERE NEW.submission_id = RV.submission_id 
         AND NEW.paper_decision = 'accepted' 
@@ -136,7 +136,7 @@ BEGIN
     END IF;
 
     -- cannot review papers from its organization
-    ELSIF EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM Reviews RV
         JOIN People P ON RV.person_id = P.person_id
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS ConferenceSessions (
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
 
-    PRIMARY KEY (conf_id),
+    PRIMARY KEY (session_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
 
@@ -201,13 +201,13 @@ CREATE TABLE IF NOT EXISTS Attends (
 );
 
 -- Trigger: the session's start_time must <= conference's start_time, and end_time
-CREATE OR REPLACE FUNCTION SessionTimeCheck() RETURN TRIGGER $$
+CREATE OR REPLACE FUNCTION SessionTimeCheck() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
         AND Conferences.start_time > NEW.start_time) THEN
             RAISE EXCEPTION 'Session start_time must <= conference start_time';
     END IF;
-    ELSIF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
+    IF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
         AND Conferneces.end_time < NEW.end_time) THEN
             RAISE EXCEPTION 'Session end_time must > conference end_time';
     END IF;
@@ -241,7 +241,7 @@ CREATE TABLE IF NOT EXISTS SessionPresentations (
 );
 
 -- Trigger: chair is not an author in the auduited session
-CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURN TRIGGER AS $$
+CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (
         SELECT 1
@@ -260,7 +260,7 @@ FOR EACH ROW EXECUTE FUNCTION ChairNotAuthor();
 -- Trigger: an author can have 2 presentations at the same time iff
 -- 1. having a paper and a poster presentation at the same time AND
 -- 2. not a sole author in either
-CREATE OR REPLACE FUNCTION PresentationAvailbilityCheck() RETURN TRIGGER AS $$
+CREATE OR REPLACE FUNCTION PresentationAvailbilityCheck() RETURNS TRIGGER AS $$
 BEGIN
     -- Check if the author is trying to have two presentations at the same time
     IF (SELECT COUNT(*) FROM SessionPresentations WHERE session_id = NEW.session_id AND submission_id = NEW.submission_id) >= 2 THEN
@@ -294,18 +294,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgPresentationAvailbilityCheck
-BEFORE INSERT OR UPDATE ON SessionPresentations;
-FOR EACH ROW EXECUTE PresentationAvailbilityCheck();
+BEFORE INSERT OR UPDATE ON SessionPresentations
+FOR EACH ROW EXECUTE FUNCTION PresentationAvailbilityCheck();
 
 -- TODO: at least one author per accepted submission must attend the conference
-CREATE OR REPLACE FUNCTION ConferenceAttendancePerSubmission() AS $$
-BEGIN
-    -- TODO: implement trigger
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER TrgConferenceAttendancePerSubmission
-BEFORE INSERT OR UPDATE ON ConferenceSessions
-FOR EACH ROW EXECUTE ConferenceAttendancePerSubmission();
 
 CREATE TABLE IF NOT EXISTS Workshops (
     workshop_id INT NOT NULL,
@@ -315,7 +307,7 @@ CREATE TABLE IF NOT EXISTS Workshops (
     PRIMARY KEY (workshop_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
-    FOREIGN KEY (facilitator) REFERENCES Attends(person_id) 
+    FOREIGN KEY (facilitator) REFERENCES People(person_id) 
 );
 
 CREATE TABLE IF NOT EXISTS WorkshopAttendees (
@@ -325,5 +317,5 @@ CREATE TABLE IF NOT EXISTS WorkshopAttendees (
     PRIMARY KEY (workshop_id, person_id),
 
     FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id),
-    FOREIGN KEY (person_id) REFERENCES Attends(person_id)
+    FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
