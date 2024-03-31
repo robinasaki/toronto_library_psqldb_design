@@ -126,24 +126,6 @@ CREATE TRIGGER TrgCheckAcceptReview
 BEFORE INSERT OR UPDATE ON PaperSubmissions
 FOR EACH ROW EXECUTE FUNCTION CheckAcceptReview();
 
--- Trigger: each author must have at least one submission
-CREATE OR REPLACE FUNCTION CheckAuthorExists() RETURNS TRIGGER AS $$
-DECLARE
-    author_found BOOLEAN;
-BEGIN
-    SELECT EXISTS (SELECT 1 FROM Contributions WHERE person_id = NEW.person_id)
-    INTO author_found;
-
-    IF NOT author_found THEN
-        RAISE EXCEPTION 'person_id must have at least one submission.';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER TrgCheckAuthorExists
-BEFORE INSERT OR UPDATE ON Authors
-FOR EACH ROW EXECUTE FUNCTION CheckAuthorExists();
-
 -- Trigger: an author cannot review its own paper and papers from its organization
 CREATE OR REPLACE FUNCTION ReviewCheck() RETURNS TRIGGER AS $$
 BEGIN
@@ -173,16 +155,26 @@ BEFORE INSERT OR UPDATE ON Reviews
 FOR EACH ROW EXECUTE FUNCTION ReviewCheck();
 
 -- Trigger: at least one author on each paper must be a reviewer
-CREATE OR REPLACE FUNCTION ReviewEnforceCheck() RETURN TRIGGER AS $$
+CREATE OR REPLACE FUNCTION ReviewEnforceCheck() RETURNS TRIGGER AS $$
+DECLARE
+    author_reviewer_count INT;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Reviews WHERE person_id = NEW.person_id) THEN
+    -- Count how many authors of the paper being reviewed have also been reviewers
+    SELECT COUNT(DISTINCT C.person_id)
+    INTO author_reviewer_count
+    FROM Contributes C
+    INNER JOIN Reviews R ON C.person_id = R.person_id
+    WHERE C.submission_id = NEW.submission_id;
+
+    IF author_reviewer_count = 0 THEN
         RAISE EXCEPTION 'At least one author on each paper must be a reviewer';
     END IF;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgReviewEnforceCheck
-BEFORE INSERT OR UPDATE ON Contributes
+AFTER INSERT OR UPDATE ON Reviews
 FOR EACH ROW EXECUTE FUNCTION ReviewEnforceCheck();
 
 CREATE TABLE IF NOT EXISTS ConferenceSessions (
