@@ -189,6 +189,7 @@ CREATE TABLE IF NOT EXISTS ConferenceSessions (
     end_time TIMESTAMP NOT NULL,
 
     PRIMARY KEY (conf_id),
+
     FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
 
     CHECK (start_time < end_time)
@@ -221,14 +222,54 @@ CREATE TABLE IF NOT EXISTS SessionChair (
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
 
--- Trigger: chair is not an author of any presentation in that conference
-CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURN TRIGGER AS $$
-    IF EXISTS (SELECT )
+-- TODO: Constraint: chair has not other schedules (?)
 
+CREATE TABLE IF NOT EXISTS SessionPresentation (
+    submission_id INT NOT NULL,
+    session_id INT NOT NULL,
+
+    PRIMARY KEY (submission_id, session_id),
+    
+    FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id),
+    FOREIGN KEY (session_id) REFERENCES ConferenceSessions(session_id)
+);
+
+-- Trigger: chair is not an author in the auduited session
+CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURN TRIGGER AS $$
+    IF EXISTS (
+        SELECT 1
+        FROM Contributes C JOIN SessionPresentation SP ON C.submission_id = SP.submission_id
+        WHERE NEW.session_id = session_id AND NEW.person_id = person_id
+    ) THEN
+        RAISE EXCEPTION 'Chair cannot be author in the session';
     END IF;
     RETURN NEW;
-END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgChairNotAuthor
 BEFORE INSERT OR UPDATE ON SessionChair
 FOR EACH ROW EXECUTE FUNCTION ChairNotAuthor();
+
+-- TODO: Constraint: an author can have 2 presentations at the same time iff
+-- 1. having a paper and a poster presentation at the same time
+-- 2. not a sole author in either
+
+CREATE TABLE IF NOT EXISTS Workshops (
+    workshop_id INT NOT NULL,
+    conf_id INT NOT NULL,
+    facilitator INT NOT NULL,
+
+    PRIMARY KEY (workshop_id),
+
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
+    FOREIGN KEY (facilitator) REFERENCES People(person_id) 
+);
+
+CREATE TABLE IF NOT EXISTS WorkshopAttendees (
+    workshop_id INT NOT NULL,
+    person_id INT NOT NULL,
+    
+    PRIMARY KEY (workshop_id, person_id),
+
+    FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id),
+    FOREIGN KEY (person_id) REFERENCES People(person_id)
+);
