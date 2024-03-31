@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
 
 -- Trigger: a paper must have at least 3 reviews to be accpeted
 CREATE OR REPLACE FUNCTION CheckAtLeastThreeReviews RETURNS TRIGGER AS $$
+BEGIN
     IF (NEW.paper_decision = 'accepted') THEN
         IF ((SELECT COUNT(*) FROM Review RV WHERE RV.submission_id = NEW.submission_id) < 3) THEN
             RAISE EXCEPTION 'A paper must have 3 reviews to be accepted';
@@ -96,6 +97,7 @@ FOR EACH ROW EXECUTE FUNCTION CheckAtLeastThreeReviews();
 
 -- Trigger: an author cannot review its own paper
 CREATE OR REPLACE FUNCTION CheckSelfReview RETURNS TRIGGER AS $$
+BEGIN
     IF EXISTS (SELECT 1 FROM Contributes PC WHERE PC.person_id = NEW.person_id
         AND PC.submission_id = NEW.submission_id) THEN
             RAISE EXCEPTION 'An author cannot review its own paper.';
@@ -109,6 +111,7 @@ FOR EACH ROW EXECUTE FUNCTION CheckSelfReview();
 
 -- Trigger: a paper cannot be accepted without any 'accepted' review suggestion
 CREATE OR REPLACE FUNCTION CheckAcceptReview RETURNS TRIGGER AS $$
+BEGIN
     IF EXISTS (SELECT 1 FROM Reviews RV WHERE NEW.submission_id = RV.submission_id 
         AND NEW.paper_decision = 'accepted' 
         AND (SELECT COUNT(suggested_decision) FROM Reviews 
@@ -195,8 +198,19 @@ CREATE TABLE IF NOT EXISTS ConferenceSessions (
     CHECK (start_time < end_time)
 );
 
+CREATE TABLE IF NOT EXISTS Attends (
+    person_id INT NOT NULL,
+    conf_id INT NOT NULL,
+
+    PRIMARY KEY (person_id, conf_id),
+
+    FOREIGN KEY (person_id) REFERENCES People(person_id),
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id)
+);
+
 -- Trigger: the session's start_time must <= conference's start_time, and end_time
 CREATE OR REPLACE FUNCTION SessionTimeCheck() RETURN TRIGGER $$
+BEGIN
     IF EXISTS (SELECT 1 FROM Conferences WHERE Conferences.conf_id = NEW.conf_id
         AND Conferences.start_time > NEW.start_time) THEN
             RAISE EXCEPTION 'Session start_time must <= conference start_time';
@@ -224,7 +238,7 @@ CREATE TABLE IF NOT EXISTS SessionChair (
 
 -- TODO: Constraint: chair has not other schedules (?)
 
-CREATE TABLE IF NOT EXISTS SessionPresentation (
+CREATE TABLE IF NOT EXISTS SessionPresentations (
     submission_id INT NOT NULL,
     session_id INT NOT NULL,
 
@@ -236,22 +250,70 @@ CREATE TABLE IF NOT EXISTS SessionPresentation (
 
 -- Trigger: chair is not an author in the auduited session
 CREATE OR REPLACE FUNCTION ChairNotAuthor() RETURN TRIGGER AS $$
+BEGIN
     IF EXISTS (
         SELECT 1
-        FROM Contributes C JOIN SessionPresentation SP ON C.submission_id = SP.submission_id
+        FROM Contributes C JOIN SessionPresentations SP ON C.submission_id = SP.submission_id
         WHERE NEW.session_id = session_id AND NEW.person_id = person_id
     ) THEN
         RAISE EXCEPTION 'Chair cannot be author in the session';
     END IF;
     RETURN NEW;
+END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgChairNotAuthor
 BEFORE INSERT OR UPDATE ON SessionChair
 FOR EACH ROW EXECUTE FUNCTION ChairNotAuthor();
 
--- TODO: Constraint: an author can have 2 presentations at the same time iff
--- 1. having a paper and a poster presentation at the same time
+-- Trigger: an author can have 2 presentations at the same time iff
+-- 1. having a paper and a poster presentation at the same time AND
 -- 2. not a sole author in either
+CREATE OR REPLACE FUNCTION PresentationAvailbilityCheck() RETURN TRIGGER AS $$
+BEGIN
+    -- Check if the author is trying to have two presentations at the same time
+    IF (SELECT COUNT(*) FROM SessionPresentations WHERE session_id = NEW.session_id AND submission_id = NEW.submission_id) >= 2 THEN
+        -- Check if one is a paper and the other is a poster
+        IF EXISTS (
+            SELECT 1 FROM SessionPresentations SP
+            JOIN PaperSubmissions PS ON SP.submission_id = PS.submission_id
+            WHERE SP.session_id = NEW.session_id AND PS.paper_decision = 'accepted'
+            AND EXISTS (
+                SELECT 1 FROM SessionPresentations SP2
+                WHERE SP2.session_id = SP.session_id AND SP2.submission_id != SP.submission_id
+                -- Assuming there is a way to distinguish between paper and poster
+                AND SP2.presentation_type != SP.presentation_type
+            )
+        ) THEN
+            -- Check that the author is not a sole author in either presentation
+            IF EXISTS (
+                SELECT 1 FROM Contributes C
+                WHERE C.submission_id = NEW.submission_id
+                AND (SELECT COUNT(*) FROM Contributes C2 WHERE C2.submission_id = C.submission_id) > 1
+            ) THEN
+                RETURN NEW; -- All conditions met, allow the presentation
+            ELSE
+                RAISE EXCEPTION 'The author must not be a sole author in either presentation type.';
+            END IF;
+        ELSE
+            RAISE EXCEPTION 'An author can only have a paper and a poster presentation at the same time if they are not the sole author in either.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgPresentationAvailbilityCheck
+BEFORE INSERT OR UPDATE ON SessionPresentations;
+FOR EACH ROW EXECUTE PresentationAvailbilityCheck();
+
+-- TODO: at least one author per accepted submission must attend the conference
+CREATE OR REPLACE FUNCTION ConferenceAttendancePerSubmission() AS $$
+BEGIN
+    -- TODO: implement trigger
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgConferenceAttendancePerSubmission
+BEFORE INSERT OR UPDATE ON ConferenceSessions
+FOR EACH ROW EXECUTE ConferenceAttendancePerSubmission();
 
 CREATE TABLE IF NOT EXISTS Workshops (
     workshop_id INT NOT NULL,
@@ -261,7 +323,7 @@ CREATE TABLE IF NOT EXISTS Workshops (
     PRIMARY KEY (workshop_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
-    FOREIGN KEY (facilitator) REFERENCES People(person_id) 
+    FOREIGN KEY (facilitator) REFERENCES Attends(person_id) 
 );
 
 CREATE TABLE IF NOT EXISTS WorkshopAttendees (
@@ -271,5 +333,5 @@ CREATE TABLE IF NOT EXISTS WorkshopAttendees (
     PRIMARY KEY (workshop_id, person_id),
 
     FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id),
-    FOREIGN KEY (person_id) REFERENCES People(person_id)
+    FOREIGN KEY (person_id) REFERENCES Attends(person_id)
 );
