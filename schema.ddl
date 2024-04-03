@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
 
--- Trigger: a paper must have at least 3 reviews to be accpeted
+-- Trigger: a paper must have at least 3 reviews to be accepted
 CREATE OR REPLACE FUNCTION CheckAtLeastThreeReviews() RETURNS TRIGGER AS $$
 BEGIN
     IF (NEW.paper_decision = 'accepted') THEN
@@ -130,7 +130,7 @@ FOR EACH ROW EXECUTE FUNCTION CheckAcceptReview();
 CREATE OR REPLACE FUNCTION ReviewCheck() RETURNS TRIGGER AS $$
 BEGIN
     -- an author cannot review its own paper
-    IF EXISTS (SELECT 1 FROM Contribtues WHERE submission_id = NEW.submission_id 
+    IF EXISTS (SELECT 1 FROM Contributes WHERE submission_id = NEW.submission_id 
         AND Contributes.person_id = NEW.person_id) THEN
             RAISE EXCEPTION 'An author cannot review its own paper.';
     END IF;
@@ -298,6 +298,29 @@ BEFORE INSERT OR UPDATE ON SessionPresentations
 FOR EACH ROW EXECUTE FUNCTION PresentationAvailbilityCheck();
 
 -- TODO: at least one author per accepted submission must attend the conference
+CREATE OR REPLACE FUNCTION AtLeastOneRegistered() RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.paper_decision = 'accepted') THEN
+        IF EXISTS (
+            SELECT 1
+            FROM PaperSubmissions JOIN Submissions ON PaperSubmissions.submission_id = Submissions.submission_id
+            JOIN Contributes ON Submissions.submission_id = Contributes.submission_id
+            JOIN Attends ON Contributes.person_id = Attends.person_id AND Submissions.conf_id = Attends.conf_id
+            WHERE PaperSubmissions.paper_decision = 'accepted'
+            AND Submissions.submission_id = NEW.submission_id
+        ) THEN
+            RETURN NEW;
+        ELSE 
+            RAISE EXCEPTION 'At least one author must be registered at the conference where their paper is accepted'
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgAtLeastOneRegistered
+BEFORE INSERT OR UPDATE IN PaperSubmissions
+FOR EACH ROW EXECUTE FUNCTION AtLeastOneRegistered();
+
 
 CREATE TABLE IF NOT EXISTS Workshops (
     workshop_id INT NOT NULL,
@@ -319,3 +342,4 @@ CREATE TABLE IF NOT EXISTS WorkshopAttendees (
     FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id),
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
+
