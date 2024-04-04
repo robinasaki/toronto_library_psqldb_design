@@ -14,11 +14,68 @@ CREATE TABLE IF NOT EXISTS Conferences (
     conf_location TEXT NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
-    
+
     PRIMARY KEY (conf_location, start_time, end_time),
+    FOREIGN KEY (conf_chair) REFERENCES People(person_id)
 
     CHECK(start_time < end_time)
 );
+
+-- The chair(s) of each conference
+CREATE TABLE IF NOT EXISTS ConferenceChair (
+    conf_id INT NOT NULL,
+    chair INT NOT NULL,
+
+    PRIMARY KEY (conf_id, chair),
+
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
+    FOREIGN KEY (chair) REFERENCES People(person_id)
+);
+
+-- Members of each conference's committee
+CREATE TABLE IF NOT EXISTS ConferenceCommittee (
+    conf_id INT NOT NULL,
+    committee_member INT NOT NULL,
+
+    PRIMARY KEY (conf_id, committee_member),
+
+    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
+    FOREIGN KEY (committee_member) REFERENCES People(person_id)
+);
+
+-- Trigger: Conferences must have 1+ conference chairs, who must have been on the org committe 
+-- 2+ times prior
+CREATE OR REPLACE FUNCTION ChairAndCommitteeReq() RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if a conference has any chair at all
+    IF EXISTS (
+        SELECT 1
+        FROM Conferences JOIN ConferenceChair ON Conferences.conf_id = ConferenceChair.conf_id
+        WHERE Conferences.conf_id = NEW.conf_id
+    ) THEN
+        -- Check if chair has been on org committee of conference 2+ times
+        -- Assuming conference name stays same across all iterations/years of conference
+        IF EXISTS (
+            SELECT Conferences.conf_name, ConferenceCommittee.committee_member, COUNT(Conferences.conf_name)
+            FROM Conferences JOIN ConferenceChair ON Conferences.conf_id = ConferenceChair.conf_id
+            JOIN ConferenceCommittee ON ConferenceCommittee.conf_id = Conferences.conf_id AND ConferenceCommittee.committee_member = ConferenceChair.chair
+            WHERE Conferences.conf_id = NEW.conf_id
+            GROUP BY Conferences.conf_name, ConferenceCommittee.committee_member
+            HAVING count(Conferences.conf_name) >= 2
+        ) THEN
+            RETURN NEW;
+        ELSE
+            RAISE EXCEPTION 'Conference chair must have been on committee 2+ time prior';
+        END IF;
+    ELSE
+        RAISE EXCEPTION 'Conference must have at least one chairperson';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgChairAndCommitteeReq
+AFTER INSERT OR UPDATE ON Conferences
+FOR EACH ROW EXECUTE FUNCTION ChairAndCommitteeReq();
 
 CREATE TABLE IF NOT EXISTS Submissions (
     submission_id INT NOT NULL,
@@ -311,26 +368,36 @@ BEGIN
         ) THEN
             RETURN NEW;
         ELSE 
-            RAISE EXCEPTION 'At least one author must be registered at the conference where their paper is accepted'
+            RAISE EXCEPTION 'At least one author must be registered at the conference where their paper is accepted';
         END IF;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER TrgAtLeastOneRegistered
-BEFORE INSERT OR UPDATE IN PaperSubmissions
+BEFORE INSERT OR UPDATE ON PaperSubmissions
 FOR EACH ROW EXECUTE FUNCTION AtLeastOneRegistered();
 
 
 CREATE TABLE IF NOT EXISTS Workshops (
     workshop_id INT NOT NULL,
     conf_id INT NOT NULL,
-    facilitator INT NOT NULL,
+    -- facilitator INT NOT NULL,
 
     PRIMARY KEY (workshop_id),
 
     FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
     FOREIGN KEY (facilitator) REFERENCES People(person_id) 
+);
+
+CREATE TABLE IF NOT EXISTS WorkshopFacilitator (
+    workshop_id INT NOT NULL,
+    person_id INT NOT NULL,
+
+    PRIMARY KEY (workshop_id, person_id),
+
+    FOREIGN KEY (workshop_id) REFERENCES Workshops(workshop_id),
+    FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
 
 CREATE TABLE IF NOT EXISTS WorkshopAttendees (
@@ -343,3 +410,21 @@ CREATE TABLE IF NOT EXISTS WorkshopAttendees (
     FOREIGN KEY (person_id) REFERENCES People(person_id)
 );
 
+-- Trigger: All workshops must have one facilitator
+CREATE OR REPLACE FUNCTION WorkshopHasFacilitator() RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM Workshop JOIN WorkshopFacilitator ON Workshop.workshop_id = WorkshopFacilitator.workshop_id
+        WHERE Workshop.workshop_id = NEW.workshop_id
+    ) THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'Workshop must have at least one facilitator';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER TrgWorkshopHasFacilitator
+BEFORE INSERT OR UPDATE ON Workshops
+FOR EACH ROW EXECUTE FUNCTION WorkshopHasFacilitator();
