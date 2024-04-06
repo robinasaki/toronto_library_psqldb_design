@@ -116,11 +116,14 @@ CREATE TABLE IF NOT EXISTS Contributes (
     submission_id INT NOT NULL,
     person_id INT NOT NULL,
     sole_author BOOLEAN NOT NULL,
+    author_num INT NOT NULL,
 
     PRIMARY KEY (submission_id, person_id),
 
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id),
-    FOREIGN KEY (person_id) REFERENCES People(person_id)
+    FOREIGN KEY (person_id) REFERENCES People(person_id),
+
+    CHECK (author_num > 0)
 );
 
 CREATE TABLE IF NOT EXISTS Reviews (
