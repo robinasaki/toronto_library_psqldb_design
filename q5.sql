@@ -2,25 +2,29 @@ SET SEARCH_PATH TO Conference, public;
 
 DROP TABLE IF EXISTS q5 CASCADE;
 
--- Assume there can be any number of paper sessions in a conference, but only one poster
-
 CREATE TABLE q4 (
     conf_id INT PRIMARY KEY,
     avg_papers INT,
     avg_posters INT
 );
 
--- Average number of posters 
--- Only one poster session, so average = count
-DROP VIEW IF EXISTS AveragePosters CASCADE;
-CREATE VIEW AveragePosters AS
-    SELECT C.conf_id, COUNT(S.submission_id) AS avg_posters
+-- All poster sessions, with their count of posters
+DROP VIEW IF EXISTS NumPosters;
+CREATE VIEW NumPosters AS
+    SELECT C.conf_id, PS.session_id, COUNT(S.submission_id) AS num_posters
     FROM PosterSessions PS
     JOIN Conferences C ON C.conf_id = PS.conf_id
     JOIN SessionPresentations SP ON PS.session_id = SP.session_id
     JOIN Submissions S ON S.submission_id = SP.submission_id
-    GROUP BY C.conf_id;
+    GROUP BY C.conf_id, PS.session_id;
 
+-- Average number of posters 
+DROP VIEW IF EXISTS AveragePosters CASCADE;
+CREATE VIEW AveragePosters AS
+    SELECT conf_id, AVG(num_posters) AS avg_posters
+    FROM NumPosters
+    GROUP BY conf_id;
+    
 -- All paper sessions, with their count of papers
 DROP VIEW IF EXISTS NumPapers CASCADE;
 CREATE VIEW NumPapers AS

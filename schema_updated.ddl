@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
 
 -- Every session (paper, poster) in each conference
 -- ########REMOVE THIS############
+/*
 CREATE TABLE IF NOT EXISTS ConferenceSessions (
     conf_id INT NOT NULL,
     session_id INT NOT NULL,
@@ -138,7 +139,9 @@ CREATE TABLE IF NOT EXISTS ConferenceSessions (
 
     CHECK (start_time < end_time)
 );
+*/
 
+-- All paper sessions in each conference
 CREATE TABLE IF NOT EXISTS PaperSessions (
     conf_id INT NOT NULL,
     session_id INT NOT NULL,
@@ -152,6 +155,7 @@ CREATE TABLE IF NOT EXISTS PaperSessions (
     CHECK (start_time < end_time)
 );
 
+-- All poster sessions in each conference
 CREATE TABLE IF NOT EXISTS PosterSessions (
     conf_id INT NOT NULL,
     session_id INT NOT NULL,
