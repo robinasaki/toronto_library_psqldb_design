@@ -51,3 +51,4 @@ CREATE VIEW AveragePapersAndPosters AS
 
 INSERT INTO q5 (conf_id, avg_papers, avg_posters)
     SELECT * FROM AveragePapersAndPosters;
+    
