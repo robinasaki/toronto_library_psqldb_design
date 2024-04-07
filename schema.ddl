@@ -8,6 +8,8 @@ CREATE TYPE Conference.paper_decision AS ENUM('accepted', 'rejected', 'pending')
 -- Attendee type
 CREATE TYPE Conference.attendee_type AS ENUM('student', 'other');
 
+CREATE TYPE Conference.submission_type AS ENUM('paper', 'poster');
+
 CREATE TABLE IF NOT EXISTS Conferences (
     conf_id INT UNIQUE NOT NULL,
     conf_name TEXT NOT NULL,
@@ -82,6 +84,7 @@ CREATE TABLE IF NOT EXISTS Submissions (
     submission_title TEXT NOT NULL,
     conf_id INT NOT NULL,
     organization TEXT NOT NULL, -- not necessary related to the authors' organization
+    -- submission_type Conference.submission_type NOT NULL,
 
     PRIMARY KEY (submission_id),
 
