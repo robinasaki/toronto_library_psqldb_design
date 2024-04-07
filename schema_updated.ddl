@@ -1,9 +1,26 @@
 /*
     Could not:
-        - 
+        - Prevent anonymous submissions.
+        - Ensure at least one author on each paper must be a reviewer.
+        - Prevent reviewers from reviweing their own submissions/those of
+          co-authors or others in their org.
+        - Require three reviews before accepting, or sub. This requires
+          comparisons between two different tables (Reviews and Submissions)
+          and so requires a trigger.
+        - Prevent previously accepted submissions from being submitted again.
+        - Reqire session chairs to attend the conference, not be an author there,
+          and not have other things scheduled.
+        - Requiring 1+ authors to be registered for the conference.
+        - Requiring a workshop to have a faciliator. 
+        - Requiring conference chairs to have been on the organizing committee at least
+          twice before being conference chair unless the conference is too new.
+
+    All the above constraints require either triggers or assertions, as they require
+    more information than a foreign key constraint or CHECK constraint can manage.
 
     Did not:
-        - 
+        - (Nothing). Any constraints that could be enforced without triggers or assertions
+          were enforced.
 
     Extra constraints:
         - Every author of a paper must have an order number, which MUST be
@@ -16,7 +33,8 @@
         - There is only one chairperson per conference.
         - Every organization may have different policies related to
           what a 'student' is, so a 'student' status is not universal
-          for a particular person.
+          for a particular person. 'Student' status is thus determined
+          on a conference-by-conference basis.
          
 */
 
@@ -114,21 +132,6 @@ CREATE TABLE IF NOT EXISTS Submissions (
 );
 
 /*
--- Additional info about Paper submissions
--- All paper submissions should be in here
-CREATE TABLE IF NOT EXISTS PaperSubmissions (
-    submission_id INT NOT NULL,
-
-    -- paper_decision Conference.paper_decision,
-
-    PRIMARY KEY (submission_id), 
-    -- we could remove the above primary key, but for marking purpose we decided to not to.
-
-    FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
-);
-*/
-
-/*
     Details of all people involved in the conferences 
 
     (authors, reviewers, chairs, etc.)
@@ -196,24 +199,6 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (person_id) REFERENCES People(person_id),
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
-
--- Every session (paper, poster) in each conference
--- ########REMOVE THIS############
-/*
-CREATE TABLE IF NOT EXISTS ConferenceSessions (
-    conf_id INT NOT NULL,
-    session_id INT NOT NULL,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
-
-    PRIMARY KEY (session_id),
-
-    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
-
-    CHECK (start_time < end_time)
-);
-*/
-
 
 CREATE TABLE IF NOT EXISTS PaperSessions (
     conf_id INT NOT NULL,
