@@ -12,10 +12,11 @@ CREATE TABLE q4 (
 DROP VIEW IF EXISTS NumPosters;
 CREATE VIEW NumPosters AS
     SELECT C.conf_id, PS.session_id, COUNT(S.submission_id) AS num_posters
-    FROM PosterSessions PS
+    FROM Sessions PS
     JOIN Conferences C ON C.conf_id = PS.conf_id
     JOIN SessionPresentations SP ON PS.session_id = SP.session_id
     JOIN Submissions S ON S.submission_id = SP.submission_id
+    WHERE PS.session_type = 'poster'
     GROUP BY C.conf_id, PS.session_id;
 
 -- Average number of posters 
@@ -29,10 +30,11 @@ CREATE VIEW AveragePosters AS
 DROP VIEW IF EXISTS NumPapers CASCADE;
 CREATE VIEW NumPapers AS
     SELECT C.conf_id, PS.session_id, COUNT(S.submission_id) AS num_papers
-    FROM PaperSessions PS
+    FROM Sessions PS
     JOIN Conferences C ON C.conf_id = PS.conf_id
     JOIN SessionPresentations SP ON PS.session_id = SP.session_id
     JOIN Submissions S ON S.submission_id = SP.submission_id
+    WHERE PS.session_type = 'paper'
     GROUP BY C.conf_id, PS.session_id;
 
 -- Average number of papers

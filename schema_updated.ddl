@@ -200,11 +200,21 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (submission_id) REFERENCES Submissions(submission_id)
 );
 
-CREATE TABLE IF NOT EXISTS PaperSessions (
+/*
+    All sessions in each conference.
+
+    conf_id: Conference the session is in.
+    session_id: Unique id identifying session.
+    start_time: Time and day the session begins.
+    end_time: Time and day the session ends.
+    session_type: Whether the session is for papers or posters.
+*/
+CREATE TABLE IF NOT EXISTS Sessions (
     conf_id INT NOT NULL,
     session_id INT NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
+    session_type Conference.submission_type NOT NULL,
 
     PRIMARY KEY (session_id),
 
@@ -213,27 +223,6 @@ CREATE TABLE IF NOT EXISTS PaperSessions (
     CHECK (start_time < end_time)
 );
 
-/*
-    All poster sessions in each conference.
-
-    conf_id: Conference the session is in.
-    session_id: Unique id identifying session.
-    start_time: Time and day the session begins.
-    end_time: Time and day the session ends.
-
-*/
-CREATE TABLE IF NOT EXISTS PosterSessions (
-    conf_id INT NOT NULL,
-    session_id INT NOT NULL,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
-
-    PRIMARY KEY (session_id),
-
-    FOREIGN KEY (conf_id) REFERENCES Conferences(conf_id),
-
-    CHECK (start_time < end_time),
-);
 
 -- People registered for each conference
 CREATE TABLE IF NOT EXISTS Attends (
