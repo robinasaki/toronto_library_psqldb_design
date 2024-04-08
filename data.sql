@@ -768,7 +768,7 @@ INSERT INTO SessionPresentations VALUES (56, 21);
 INSERT INTO SessionPresentations VALUES (57, 23);
 INSERT INTO SessionPresentations VALUES (58, 29);
 INSERT INTO SessionPresentations VALUES (59, 29);
-INSERT INTO SessionPresentations VALUES (66, 33); --poster
+INSERT INTO SessionPresentations VALUES (66, 34); --poster
 INSERT INTO SessionPresentations VALUES (67, 35);
 INSERT INTO SessionPresentations VALUES (68, 37);
 
