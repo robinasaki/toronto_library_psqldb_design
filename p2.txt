@@ -1,0 +1,19 @@
+PART 2
+
+Q1
+(a) 
+S->U: SUTVXQ
+NO R, FAIL
+R->SW: RSWUTVXQ
+PASS
+
+All fail except R->SW, as R exists only on the LHS of any FD, and only for R->SW.
+No other FD can get R (or W) in its closure and therefore produce a superset.
+
+(b)
+SELECT S->U
+S+ = SUTVXQU
+    R1 = SUTVXQ
+    R2 = QRSTUVWX - (QSTUVX - S) = QRSTUVWX - QTUVX = RSW
+
+    
