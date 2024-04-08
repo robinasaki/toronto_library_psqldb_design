@@ -60,7 +60,7 @@ CREATE TYPE Conference.submission_type AS ENUM('paper', 'poster');
     end_time: Date and time the conference ends.
 */
 CREATE TABLE IF NOT EXISTS Conferences (
-    conf_id INT UNIQUE NOT NULL, 
+    conf_id INT UNIQUE NOT NULL AUTO_INCREMENT, 
     conf_name TEXT NOT NULL,
     conf_location TEXT NOT NULL,
     start_time TIMESTAMP NOT NULL,
