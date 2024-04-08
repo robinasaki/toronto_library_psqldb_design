@@ -8,7 +8,7 @@ CREATE TABLE q2 (
     PRIMARY KEY (person_id, conference_count)
 );
 
-SELECT DISTINCT person_id, COUNT(DISTINCT conf_id) AS conference_count
-INTO q2
-FROM Attends
-GROUP BY person_id;
+INSERT INTO q2 (person_id, conference_count)
+    SELECT DISTINCT person_id, COUNT(DISTINCT conf_id) AS conference_count
+    FROM Attends
+    GROUP BY person_id;

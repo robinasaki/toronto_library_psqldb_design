@@ -2,7 +2,7 @@ SET SEARCH_PATH TO Conference, public;
 
 DROP TABLE IF EXISTS q5 CASCADE;
 
-CREATE TABLE q4 (
+CREATE TABLE q5 (
     conf_id INT PRIMARY KEY,
     avg_papers INT,
     avg_posters INT
