@@ -1,5 +1,15 @@
 SET SEARCH_PATH TO Conference;
 
+-- Import Data for People
+INSERT DATA INTO People VALUES (1, 'Michelle', 'Craig', 1234567890, 'mcragge@imperialcollege.com', 'Imperial College London');
+INSERT DATA INTO People VALUES (2, 'Jennifer', 'Campbell', 1234567890, 'jenny@utoronto.ca', 'University of Waterloo');
+INSERT DATA INTO People VALUES (3, 'Sadia', 'Sharmin', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+INSERT DATA INTO People VALUES (4, 'Jonathan', 'Calver', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+INSERT DATA INTO People VALUES (5, 'Larry Yueli', 'Zhang', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+INSERT DATA INTO People VALUES (6, 'Diane', 'Horton', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+INSERT DATA INTO People VALUES (7, 'Daniel', 'Zingaro', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+INSERT DATA INTO People VALUES (8, 'Danny', 'Heap', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
+
 -- Import Data for Conferences
 INSERT INTO Conferences VALUES (1, 'SIGCSE TS', 'Toronto', '2010-10-19 10:00:00', '2010-10-19 18:00:00');
 INSERT INTO Conferences VALUES (2, 'SIGCSE TS', 'Toronto', '2011-10-19 10:00:00', '2011-10-19 18:00:00');
@@ -28,9 +38,54 @@ INSERT INTO Conferences VALUES (22, 'HelloWorld', 'Toronto', '2004-10-21 10:00:0
 INSERT INTO Conferences VALUES (23, 'TomClancyClub', 'Toronto', '2005-10-21 10:00:00', '2005-10-21 18:00:00');
 
 -- Import Data for ConferenceChair
-INSERT DATA INTO ConferenceChair VALUES
+INSERT DATA INTO ConferenceChair VALUES (1, 1);
+INSERT DATA INTO ConferenceChair VALUES (2, 1);
+INSERT DATA INTO ConferenceChair VALUES (3, 1);
+INSERT DATA INTO ConferenceChair VALUES (4, 1);
+INSERT DATA INTO ConferenceChair VALUES (5, 1);
+INSERT DATA INTO ConferenceChair VALUES (6, 1);
+INSERT DATA INTO ConferenceChair VALUES (7, 1);
+INSERT DATA INTO ConferenceChair VALUES (8, 1);
+INSERT DATA INTO ConferenceChair VALUES (9, 1);
+INSERT DATA INTO ConferenceChair VALUES (10, 1);
+INSERT DATA INTO ConferenceChair VALUES (11, 1);
+INSERT DATA INTO ConferenceChair VALUES (12, 1);
+INSERT DATA INTO ConferenceChair VALUES (13, 1);
+INSERT DATA INTO ConferenceChair VALUES (14, 1);
+INSERT DATA INTO ConferenceChair VALUES (15, 1);
+INSERT DATA INTO ConferenceChair VALUES (16, 1);
+INSERT DATA INTO ConferenceChair VALUES (17, 1);
+INSERT DATA INTO ConferenceChair VALUES (18, 1);
+INSERT DATA INTO ConferenceChair VALUES (19, 1);
+INSERT DATA INTO ConferenceChair VALUES (20, 1);
+INSERT DATA INTO ConferenceChair VALUES (21, 4);
+INSERT DATA INTO ConferenceChair VALUES (22, 4);
+INSERT DATA INTO ConferenceChair VALUES (23, 4);
 
 -- Import Data for ConferenceCommittee
+INSERT DATA INTO ConferenceCommittee VALUES (1, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (2, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (3, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (4, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (5, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (6, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (7, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (8, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (9, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (10, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (11, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (12, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (13, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (14, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (15, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (16, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (17, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (18, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (19, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (20, 1);
+INSERT DATA INTO ConferenceCommittee VALUES (21, 4);
+INSERT DATA INTO ConferenceCommittee VALUES (22, 4);
+INSERT DATA INTO ConferenceCommittee VALUES (23, 4);
 
 -- Import Data for Submissions
 INSERT DATA INTO Submissions VALUES (1, 'Student Perspectives on Optional Groups', 14, 'University of Alberta', 'paper', 'accepted');
@@ -111,20 +166,6 @@ INSERT DATA INTO Submissions VALUES (65, '19a', 19, 'asdas', 'paper', 'rejected'
 INSERT DATA INTO Submissions VALUES (66, '17b', 17, 'asdas', 'poster', 'accepted'); -- sole
 INSERT DATA INTO Submissions VALUES (67, '18b', 18, 'asdas', 'paper', 'accepted');
 INSERT DATA INTO Submissions VALUES (68, '19b', 19, 'asdas', 'paper', 'accepted');
-
--- INSERT DATA INTO Submissions VALUES (69, '16abc', 16, 'sads', 'paper', 'accepted'); --michelle, jennifer
--- INSERT DATA INTO Submissions VALUES (69, '16abcd', 16, 'sads', 'paper', 'rejected'); --michelle, jennifer
-
-
--- Import Data for People
-INSERT DATA INTO People VALUES (1, 'Michelle', 'Craig', 1234567890, 'mcragge@imperialcollege.com', 'Imperial College London');
-INSERT DATA INTO People VALUES (2, 'Jennifer', 'Campbell', 1234567890, 'jenny@utoronto.ca', 'University of Waterloo');
-INSERT DATA INTO People VALUES (3, 'Sadia', 'Sharmin', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
-INSERT DATA INTO People VALUES (4, 'Jonathan', 'Calver', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
-INSERT DATA INTO People VALUES (5, 'Larry Yueli', 'Zhang', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
-INSERT DATA INTO People VALUES (6, 'Diane', 'Horton', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
-INSERT DATA INTO People VALUES (7, 'Daniel', 'Zingaro', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
-INSERT DATA INTO People VALUES (8, 'Danny', 'Heap', 1234567890, 'abdul@kfu.edu.sa', 'King Faisal University');
 
 -- Import Data for Contributes
 INSERT DATA INTO Contributes VALUES (1, 4, 'f', 1);
@@ -241,12 +282,214 @@ INSERT DATA INTO Contributes VALUES (66, 3, 't', 1);
 INSERT DATA INTO Contributes VALUES (67, 4, 't', 1);
 INSERT DATA INTO Contributes VALUES (68, 4, 't', 1);
 
--- INSERT DATA INTO Contributes VALUES (69, 2, 'f', 1);
--- INSERT DATA INTO Contributes VALUES (69, 1, 'f', 2);
-
 -- Import Data for Reviews
-INSERT DATA INTO Reviews VALUES ()
-
+INSERT INTO Reviews VALUES (1, 5, t, '', '');
+INSERT INTO Reviews VALUES (2, 3, t, '', '');
+INSERT INTO Reviews VALUES (3, 8, f, '', '');
+INSERT INTO Reviews VALUES (4, 6, f, '', '');
+INSERT INTO Reviews VALUES (5, 1, f, '', '');
+INSERT INTO Reviews VALUES (6, 8, f, '', '');
+INSERT INTO Reviews VALUES (7, 6, f, '', '');
+INSERT INTO Reviews VALUES (8, 1, f, '', '');
+INSERT INTO Reviews VALUES (9, 8, f, '', '');
+INSERT INTO Reviews VALUES (10, 3, f, '', '');
+INSERT INTO Reviews VALUES (11, 3, t, '', '');
+INSERT INTO Reviews VALUES (12, 1, f, '', '');
+INSERT INTO Reviews VALUES (13, 3, f, '', '');
+INSERT INTO Reviews VALUES (14, 8, f, '', '');
+INSERT INTO Reviews VALUES (15, 8, f, '', '');
+INSERT INTO Reviews VALUES (16, 1, f, '', '');
+INSERT INTO Reviews VALUES (17, 2, f, '', '');
+INSERT INTO Reviews VALUES (18, 4, f, '', '');
+INSERT INTO Reviews VALUES (19, 1, f, '', '');
+INSERT INTO Reviews VALUES (20, 5, f, '', '');
+INSERT INTO Reviews VALUES (21, 4, f, '', '');
+INSERT INTO Reviews VALUES (22, 6, f, '', '');
+INSERT INTO Reviews VALUES (23, 6, f, '', '');
+INSERT INTO Reviews VALUES (24, 7, f, '', '');
+INSERT INTO Reviews VALUES (25, 6, f, '', '');
+INSERT INTO Reviews VALUES (26, 7, f, '', '');
+INSERT INTO Reviews VALUES (27, 2, f, '', '');
+INSERT INTO Reviews VALUES (28, 6, t, '', '');
+INSERT INTO Reviews VALUES (29, 8, t, '', '');
+INSERT INTO Reviews VALUES (30, 6, t, '', '');
+INSERT INTO Reviews VALUES (31, 4, t, '', '');
+INSERT INTO Reviews VALUES (32, 8, t, '', '');
+INSERT INTO Reviews VALUES (33, 6, t, '', '');
+INSERT INTO Reviews VALUES (34, 8, f, '', '');
+INSERT INTO Reviews VALUES (35, 7, f, '', '');
+INSERT INTO Reviews VALUES (36, 6, f, '', '');
+INSERT INTO Reviews VALUES (37, 2, f, '', '');
+INSERT INTO Reviews VALUES (38, 2, f, '', '');
+INSERT INTO Reviews VALUES (39, 4, f, '', '');
+INSERT INTO Reviews VALUES (40, 2, f, '', '');
+INSERT INTO Reviews VALUES (41, 7, f, '', '');
+INSERT INTO Reviews VALUES (42, 1, f, '', '');
+INSERT INTO Reviews VALUES (43, 6, f, '', '');
+INSERT INTO Reviews VALUES (44, 6, f, '', '');
+INSERT INTO Reviews VALUES (45, 7, f, '', '');
+INSERT INTO Reviews VALUES (46, 2, f, '', '');
+INSERT INTO Reviews VALUES (47, 5, f, '', '');
+INSERT INTO Reviews VALUES (48, 3, f, '', '');
+INSERT INTO Reviews VALUES (49, 5, f, '', '');
+INSERT INTO Reviews VALUES (50, 3, f, '', '');
+INSERT INTO Reviews VALUES (51, 5, f, '', '');
+INSERT INTO Reviews VALUES (52, 2, f, '', '');
+INSERT INTO Reviews VALUES (53, 1, t, '', '');
+INSERT INTO Reviews VALUES (54, 6, t, '', '');
+INSERT INTO Reviews VALUES (55, 3, t, '', '');
+INSERT INTO Reviews VALUES (56, 6, t, '', '');
+INSERT INTO Reviews VALUES (57, 8, t, '', '');
+INSERT INTO Reviews VALUES (58, 3, t, '', '');
+INSERT INTO Reviews VALUES (59, 3, t, '', '');
+INSERT INTO Reviews VALUES (60, 6, f, '', '');
+INSERT INTO Reviews VALUES (61, 4, f, '', '');
+INSERT INTO Reviews VALUES (62, 5, f, '', '');
+INSERT INTO Reviews VALUES (63, 6, f, '', '');
+INSERT INTO Reviews VALUES (64, 8, f, '', '');
+INSERT INTO Reviews VALUES (65, 8, f, '', '');
+INSERT INTO Reviews VALUES (66, 6, t, '', '');
+INSERT INTO Reviews VALUES (67, 1, t, '', '');
+INSERT INTO Reviews VALUES (68, 1, t, '', '');
+INSERT INTO Reviews VALUES (69, 7, f, '', '');
+INSERT INTO Reviews VALUES (70, 2, f, '', '');
+INSERT INTO Reviews VALUES (71, 7, f, '', '');
+INSERT INTO Reviews VALUES (72, 4, f, '', '');
+INSERT INTO Reviews VALUES (73, 6, f, '', '');
+INSERT INTO Reviews VALUES (74, 5, f, '', '');
+INSERT INTO Reviews VALUES (75, 5, f, '', '');
+INSERT INTO Reviews VALUES (76, 8, f, '', '');
+INSERT INTO Reviews VALUES (77, 1, f, '', '');
+INSERT INTO Reviews VALUES (78, 1, f, '', '');
+INSERT INTO Reviews VALUES (79, 8, f, '', '');
+INSERT INTO Reviews VALUES (80, 4, f, '', '');
+INSERT INTO Reviews VALUES (81, 7, f, '', '');
+INSERT INTO Reviews VALUES (82, 4, f, '', '');
+INSERT INTO Reviews VALUES (83, 6, f, '', '');
+INSERT INTO Reviews VALUES (84, 5, f, '', '');
+INSERT INTO Reviews VALUES (85, 7, f, '', '');
+INSERT INTO Reviews VALUES (86, 5, f, '', '');
+INSERT INTO Reviews VALUES (87, 7, f, '', '');
+INSERT INTO Reviews VALUES (88, 2, f, '', '');
+INSERT INTO Reviews VALUES (89, 5, f, '', '');
+INSERT INTO Reviews VALUES (90, 1, f, '', '');
+INSERT INTO Reviews VALUES (91, 6, f, '', '');
+INSERT INTO Reviews VALUES (92, 1, f, '', '');
+INSERT INTO Reviews VALUES (93, 8, f, '', '');
+INSERT INTO Reviews VALUES (94, 8, f, '', '');
+INSERT INTO Reviews VALUES (95, 7, f, '', '');
+INSERT INTO Reviews VALUES (96, 6, f, '', '');
+INSERT INTO Reviews VALUES (97, 4, f, '', '');
+INSERT INTO Reviews VALUES (98, 7, f, '', '');
+INSERT INTO Reviews VALUES (99, 4, f, '', '');
+INSERT INTO Reviews VALUES (100, 2, f, '', '');
+INSERT INTO Reviews VALUES (101, 1, f, '', '');
+INSERT INTO Reviews VALUES (102, 5, f, '', '');
+INSERT INTO Reviews VALUES (103, 4, f, '', '');
+INSERT INTO Reviews VALUES (104, 1, f, '', '');
+INSERT INTO Reviews VALUES (105, 8, f, '', '');
+INSERT INTO Reviews VALUES (106, 4, f, '', '');
+INSERT INTO Reviews VALUES (107, 8, f, '', '');
+INSERT INTO Reviews VALUES (108, 2, f, '', '');
+INSERT INTO Reviews VALUES (109, 7, f, '', '');
+INSERT INTO Reviews VALUES (110, 2, f, '', '');
+INSERT INTO Reviews VALUES (111, 6, f, '', '');
+INSERT INTO Reviews VALUES (112, 5, f, '', '');
+INSERT INTO Reviews VALUES (113, 7, f, '', '');
+INSERT INTO Reviews VALUES (114, 8, f, '', '');
+INSERT INTO Reviews VALUES (115, 8, f, '', '');
+INSERT INTO Reviews VALUES (116, 3, f, '', '');
+INSERT INTO Reviews VALUES (117, 8, f, '', '');
+INSERT INTO Reviews VALUES (118, 8, f, '', '');
+INSERT INTO Reviews VALUES (119, 3, f, '', '');
+INSERT INTO Reviews VALUES (120, 7, f, '', '');
+INSERT INTO Reviews VALUES (121, 2, f, '', '');
+INSERT INTO Reviews VALUES (122, 2, f, '', '');
+INSERT INTO Reviews VALUES (123, 3, f, '', '');
+INSERT INTO Reviews VALUES (124, 5, f, '', '');
+INSERT INTO Reviews VALUES (125, 5, f, '', '');
+INSERT INTO Reviews VALUES (126, 4, f, '', '');
+INSERT INTO Reviews VALUES (127, 5, f, '', '');
+INSERT INTO Reviews VALUES (128, 1, f, '', '');
+INSERT INTO Reviews VALUES (129, 1, f, '', '');
+INSERT INTO Reviews VALUES (130, 7, f, '', '');
+INSERT INTO Reviews VALUES (131, 3, f, '', '');
+INSERT INTO Reviews VALUES (132, 7, f, '', '');
+INSERT INTO Reviews VALUES (133, 2, f, '', '');
+INSERT INTO Reviews VALUES (134, 2, f, '', '');
+INSERT INTO Reviews VALUES (135, 2, f, '', '');
+INSERT INTO Reviews VALUES (136, 6, f, '', '');
+INSERT INTO Reviews VALUES (137, 3, f, '', '');
+INSERT INTO Reviews VALUES (138, 4, f, '', '');
+INSERT INTO Reviews VALUES (139, 7, f, '', '');
+INSERT INTO Reviews VALUES (140, 2, f, '', '');
+INSERT INTO Reviews VALUES (141, 2, f, '', '');
+INSERT INTO Reviews VALUES (142, 2, f, '', '');
+INSERT INTO Reviews VALUES (143, 2, f, '', '');
+INSERT INTO Reviews VALUES (144, 5, f, '', '');
+INSERT INTO Reviews VALUES (145, 6, f, '', '');
+INSERT INTO Reviews VALUES (146, 8, f, '', '');
+INSERT INTO Reviews VALUES (147, 8, f, '', '');
+INSERT INTO Reviews VALUES (148, 6, f, '', '');
+INSERT INTO Reviews VALUES (149, 3, f, '', '');
+INSERT INTO Reviews VALUES (150, 2, f, '', '');
+INSERT INTO Reviews VALUES (151, 5, f, '', '');
+INSERT INTO Reviews VALUES (152, 7, f, '', '');
+INSERT INTO Reviews VALUES (153, 4, f, '', '');
+INSERT INTO Reviews VALUES (154, 5, f, '', '');
+INSERT INTO Reviews VALUES (155, 3, f, '', '');
+INSERT INTO Reviews VALUES (156, 4, f, '', '');
+INSERT INTO Reviews VALUES (157, 6, f, '', '');
+INSERT INTO Reviews VALUES (158, 6, f, '', '');
+INSERT INTO Reviews VALUES (159, 7, f, '', '');
+INSERT INTO Reviews VALUES (160, 1, f, '', '');
+INSERT INTO Reviews VALUES (161, 4, f, '', '');
+INSERT INTO Reviews VALUES (162, 8, f, '', '');
+INSERT INTO Reviews VALUES (163, 7, f, '', '');
+INSERT INTO Reviews VALUES (164, 6, f, '', '');
+INSERT INTO Reviews VALUES (165, 6, f, '', '');
+INSERT INTO Reviews VALUES (166, 8, f, '', '');
+INSERT INTO Reviews VALUES (167, 1, f, '', '');
+INSERT INTO Reviews VALUES (168, 8, f, '', '');
+INSERT INTO Reviews VALUES (169, 7, f, '', '');
+INSERT INTO Reviews VALUES (170, 8, f, '', '');
+INSERT INTO Reviews VALUES (171, 1, f, '', '');
+INSERT INTO Reviews VALUES (172, 5, f, '', '');
+INSERT INTO Reviews VALUES (173, 7, f, '', '');
+INSERT INTO Reviews VALUES (174, 5, f, '', '');
+INSERT INTO Reviews VALUES (175, 2, f, '', '');
+INSERT INTO Reviews VALUES (176, 3, f, '', '');
+INSERT INTO Reviews VALUES (177, 1, f, '', '');
+INSERT INTO Reviews VALUES (178, 7, f, '', '');
+INSERT INTO Reviews VALUES (179, 7, f, '', '');
+INSERT INTO Reviews VALUES (180, 3, f, '', '');
+INSERT INTO Reviews VALUES (181, 6, f, '', '');
+INSERT INTO Reviews VALUES (182, 5, f, '', '');
+INSERT INTO Reviews VALUES (183, 1, f, '', '');
+INSERT INTO Reviews VALUES (184, 7, f, '', '');
+INSERT INTO Reviews VALUES (185, 4, f, '', '');
+INSERT INTO Reviews VALUES (186, 2, f, '', '');
+INSERT INTO Reviews VALUES (187, 8, f, '', '');
+INSERT INTO Reviews VALUES (188, 5, f, '', '');
+INSERT INTO Reviews VALUES (189, 1, f, '', '');
+INSERT INTO Reviews VALUES (190, 7, f, '', '');
+INSERT INTO Reviews VALUES (191, 8, f, '', '');
+INSERT INTO Reviews VALUES (192, 1, f, '', '');
+INSERT INTO Reviews VALUES (193, 2, f, '', '');
+INSERT INTO Reviews VALUES (194, 5, f, '', '');
+INSERT INTO Reviews VALUES (195, 3, f, '', '');
+INSERT INTO Reviews VALUES (196, 7, f, '', '');
+INSERT INTO Reviews VALUES (197, 7, f, '', '');
+INSERT INTO Reviews VALUES (198, 8, f, '', '');
+INSERT INTO Reviews VALUES (199, 7, f, '', '');
+INSERT INTO Reviews VALUES (200, 7, f, '', '');
+INSERT INTO Reviews VALUES (201, 2, f, '', '');
+INSERT INTO Reviews VALUES (202, 3, f, '', '');
+INSERT INTO Reviews VALUES (203, 1, f, '', '');
+INSERT INTO Reviews VALUES (204, 8, f, '', '');
+INSERT INTO Reviews VALUES (205, 7, f, '', '');
+INSERT INTO Reviews VALUES (206, 7, f, '', '');
+INSERT INTO Reviews VALUES (207, 2, f, '', '');
 
 -- Import Data for Sessions
 INSERT DATA INTO Sessions VALUES (1, 1, '2010-10-19 10:00:00', '2010-10-19 11:00:00', 'paper');
@@ -308,8 +551,6 @@ INSERT DATA INTO Sessions VALUES (19, 38, '2023-10-21 12:00:00', '2023-10-21 13:
 
 INSERT DATA INTO Sessions VALUES (20, 39, '2025-10-21 12:00:00', '2025-10-21 13:00:00', 'paper');
 INSERT DATA INTO Sessions VALUES (20, 40, '2025-10-21 12:00:00', '2025-10-21 13:00:00', 'poster');
-
--- Import Data for PosterSessions
 
 -- Import Data for Attends
 INSERT DATA INTO Attends VALUES (1, 1, 'other');
@@ -472,53 +713,77 @@ INSERT DATA INTO Attends VALUES (8, 22, 'other');
 INSERT DATA INTO Attends VALUES (8, 23, 'other');
 
 -- Import Data for SessionChair
-INSERT DATA INTO SessionChair VALUES (1, 1)
+INSERT DATA INTO SessionChair VALUES (1, 4);
+INSERT DATA INTO SessionChair VALUES (2, 4);
+INSERT DATA INTO SessionChair VALUES (3, 4);
+INSERT DATA INTO SessionChair VALUES (4, 4);
+INSERT DATA INTO SessionChair VALUES (5, 4);
+INSERT DATA INTO SessionChair VALUES (6, 4);
+INSERT DATA INTO SessionChair VALUES (7, 4);
+INSERT DATA INTO SessionChair VALUES (8, 4);
+INSERT DATA INTO SessionChair VALUES (9, 4);
+INSERT DATA INTO SessionChair VALUES (10, 4);
+INSERT DATA INTO SessionChair VALUES (11, 4);
+INSERT DATA INTO SessionChair VALUES (12, 4);
+INSERT DATA INTO SessionChair VALUES (13, 4);
+INSERT DATA INTO SessionChair VALUES (14, 4);
+INSERT DATA INTO SessionChair VALUES (15, 4);
+INSERT DATA INTO SessionChair VALUES (16, 4);
+INSERT DATA INTO SessionChair VALUES (17, 4);
+INSERT DATA INTO SessionChair VALUES (18, 4);
+INSERT DATA INTO SessionChair VALUES (19, 4);
+INSERT DATA INTO SessionChair VALUES (20, 4);
+INSERT DATA INTO SessionChair VALUES (21, 4);
+INSERT DATA INTO SessionChair VALUES (22, 4);
+INSERT DATA INTO SessionChair VALUES (23, 4);
+INSERT DATA INTO SessionChair VALUES (24, 4);
+INSERT DATA INTO SessionChair VALUES (25, 4);
+INSERT DATA INTO SessionChair VALUES (26, 4);
+INSERT DATA INTO SessionChair VALUES (27, 4);
+INSERT DATA INTO SessionChair VALUES (28, 4);
+INSERT DATA INTO SessionChair VALUES (29, 4);
+INSERT DATA INTO SessionChair VALUES (30, 4);
+INSERT DATA INTO SessionChair VALUES (31, 4);
+INSERT DATA INTO SessionChair VALUES (32, 4);
+INSERT DATA INTO SessionChair VALUES (33, 4);
+INSERT DATA INTO SessionChair VALUES (34, 4);
+INSERT DATA INTO SessionChair VALUES (35, 4);
+INSERT DATA INTO SessionChair VALUES (36, 4);
+INSERT DATA INTO SessionChair VALUES (37, 4);
+INSERT DATA INTO SessionChair VALUES (38, 4);
+INSERT DATA INTO SessionChair VALUES (39, 4);
+INSERT DATA INTO SessionChair VALUES (40, 4);
 
 -- Import Data for SessionPresentations
+INSERT DATA INTO SessionPresentations VALUES (1, 27);
+INSERT DATA INTO SessionPresentations VALUES (2, 25);
+INSERT DATA INTO SessionPresentations VALUES (11, 13); --paper
+INSERT DATA INTO SessionPresentations VALUES (28, 1);
+INSERT DATA INTO SessionPresentations VALUES (29, 3);
+INSERT DATA INTO SessionPresentations VALUES (30, 5);
+INSERT DATA INTO SessionPresentations VALUES (31, 7);
+INSERT DATA INTO SessionPresentations VALUES (32, 9);
+INSERT DATA INTO SessionPresentations VALUES (33, 11);
+INSERT DATA INTO SessionPresentations VALUES (53, 15);
+INSERT DATA INTO SessionPresentations VALUES (54, 17);
+INSERT DATA INTO SessionPresentations VALUES (55, 19);
+INSERT DATA INTO SessionPresentations VALUES (56, 21);
+INSERT DATA INTO SessionPresentations VALUES (57, 23);
+INSERT DATA INTO SessionPresentations VALUES (58, 29);
+INSERT DATA INTO SessionPresentations VALUES (59, 29);
+INSERT DATA INTO SessionPresentations VALUES (66, 33); --poster
+INSERT DATA INTO SessionPresentations VALUES (67, 35);
+INSERT DATA INTO SessionPresentations VALUES (68, 37);
+
 
 -- Import Data for Workshops
+INSERT DATA INTO Workshops VALUES (1, 6);
+INSERT DATA INTO Workshops VALUES (2, 7);
 
 -- Import Data for WorkshopFacilitator
+INSERT DATA INTO WorkshopFacilitator VALUES (1, 5);
+INSERT DATA INTO WorkshopFacilitator VALUES (2, 5);
 
 -- Import Data for WorkshopAttendees
-
-
-
--- Import Data for People
-\COPY People FROM 'data/People.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for ConferenceSessions
--- `ConferenceSessions` depends on `Conferences` in SessionTimeCheck()
-\COPY ConferenceSessions FROM 'data/ConferenceSessions.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for Workshops
-\COPY Workshops FROM 'data/Workshops.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for WorkshopAttendees
-\COPY WorkshopAttendees FROM 'data/WorkshopAttendees.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for Attends
-\COPY Attends FROM 'data/Attends.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for Contributes
-\COPY Contributes FROM 'data/Contributes.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for Submissions
-\COPY Submissions FROM 'data/Submissions.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for Reviews
--- `Reviews` depends on `Contributes` in CheckSelfReview(), ReviewCheck() and ReviewEnforceCheck()
--- `Reviews` depends on `Submissions`, `People` in ReviewCheck()
-\COPY Reviews FROM 'data/Reviews.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for PaperSubmissions
--- `PaperSubmissions` depends on `Reviews` in CheckAtLeastThreeReviews() and CheckAcceptReview()
-\COPY PaperSubmissions FROM 'data/PaperSubmissions.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for SessionPresentations
--- `SessionPresentations` depends on `PaperSubmissions`, `Contributes` in ChairNotAuthor()
-\COPY SessionPresentations FROM 'data/SessionPresentations.csv' WITH CSV DELIMITER ',' HEADER;
-
--- Import Data for SessionChair
--- `SessionChair` depends on `Contributes` and `SessionPresentation` in ChairNotAuthor()
-\COPY SessionChair FROM 'data/SessionChair.csv' WITH CSV DELIMITER ',' HEADER;
+INSERT DATA INTO WorkshopAttendees VALUES (1, 2);
+INSERT DATA INTO WorkshopAttendees VALUES (2, 2);

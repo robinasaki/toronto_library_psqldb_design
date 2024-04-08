@@ -187,8 +187,9 @@ CREATE TABLE IF NOT EXISTS Contributes (
     additional_conflicts: Any additional conflicts the reviewer may have. Optional.
 */
 CREATE TABLE IF NOT EXISTS Reviews (
-    person_id INT NOT NULL, -- The reviewer
     review_id INT NOT NULL,
+    person_id INT NOT NULL, -- The reviewer
+    
     submission_id INT NOT NULL,
     suggested_decision paper_decision NOT NULL,
     comments TEXT, -- optional, comments on the review
