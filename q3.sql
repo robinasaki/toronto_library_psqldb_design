@@ -35,3 +35,4 @@ CREATE VIEW AcceptedPaperAuthors AS
 
 INSERT INTO q3 (first_author, first_name, last_name) 
     SELECT DISTINCT * FROM AcceptedPaperAuthors;
+    

@@ -9,7 +9,7 @@ CREATE TABLE q5 (
 );
 
 -- All poster sessions, with their count of posters
-DROP VIEW IF EXISTS NumPosters;
+DROP VIEW IF EXISTS NumPosters CASCADE;
 CREATE VIEW NumPosters AS
     SELECT C.conf_id, PS.session_id, COUNT(S.submission_id) AS num_posters
     FROM Sessions PS
@@ -47,9 +47,13 @@ CREATE VIEW AveragePapers AS
 -- Avg papers and posters of each conference session
 DROP VIEW IF EXISTS AveragePapersAndPosters CASCADE;
 CREATE VIEW AveragePapersAndPosters AS
-    SELECT AveragePosters.conf_id, avg_papers, avg_posters
-    FROM AveragePosters
-    JOIN AveragePapers ON AveragePapers.conf_id = AveragePosters.conf_id;
+    SELECT 
+        COALESCE(AveragePapers.conf_id, AveragePosters.conf_id) AS conf_id,
+        COALESCE(AveragePapers.avg_papers, 0) AS avg_papers,
+        COALESCE(AveragePosters.avg_posters, 0) AS avg_posters
+    FROM AveragePapers
+    FULL JOIN AveragePosters 
+    ON AveragePapers.conf_id = AveragePosters.conf_id;
 
 INSERT INTO q5 (conf_id, avg_papers, avg_posters)
     SELECT * FROM AveragePapersAndPosters;

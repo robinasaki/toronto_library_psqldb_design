@@ -40,4 +40,3 @@ SELECT CY.conf_name,
             / CY.accepted_count END AS FLOAT)
 FROM ConferenceYearAcceptedSubmissions CYS
 JOIN ConferenceYearSubmissions CY ON CYS.conf_name = CY.conf_name AND CYS.year = CY.year;
-

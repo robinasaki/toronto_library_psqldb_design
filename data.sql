@@ -88,18 +88,28 @@ INSERT INTO ConferenceCommittee VALUES (22, 4);
 INSERT INTO ConferenceCommittee VALUES (23, 4);
 
 -- Import Data for Submissions
-INSERT INTO Submissions VALUES (1, 'Student Perspectives on Optional Groups', 14, 'University of Alberta', 'paper', 'accepted');
-INSERT INTO Submissions VALUES (2, 'Experience Report on the Use of Breakout Rooms', 13, 'Harvard University', 'paper', 'accepted');
-
-INSERT INTO Submissions VALUES (3, 'Introducing and Evaluating Exam Wrappers in CS2', 1, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (4, 'Introducing and Evaluating Exam Wrappers in CS2', 2, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (5, 'Introducing and Evaluating Exam Wrappers in CS2', 3, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (6, 'Introducing and Evaluating Exam Wrappers in CS2', 4, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (7, 'Introducing and Evaluating Exam Wrappers in CS2', 5, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (8, 'Introducing and Evaluating Exam Wrappers in CS2', 6, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (9, 'Introducing and Evaluating Exam Wrappers in CS2', 21, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (10, 'Introducing and Evaluating Exam Wrappers in CS2', 22, 'University of Counter Strike', 'paper', 'rejected');
-INSERT INTO Submissions VALUES (11, 'Introducing and Evaluating Exam Wrappers in CS2', 7, 'University of Counter Strike', 'paper', 'accepted');
+INSERT INTO Submissions VALUES (1, 'Student Perspectives on Optional Groups', 14, 
+    'University of Alberta', 'paper', 'accepted');
+INSERT INTO Submissions VALUES (2, 'Experience Report on the Use of Breakout Rooms', 13, 
+    'Harvard University', 'paper', 'accepted');
+INSERT INTO Submissions VALUES (3, 'Introducing and Evaluating Exam Wrappers in CS2', 1, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (4, 'Introducing and Evaluating Exam Wrappers in CS2', 2, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (5, 'Introducing and Evaluating Exam Wrappers in CS2', 3, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (6, 'Introducing and Evaluating Exam Wrappers in CS2', 4, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (7, 'Introducing and Evaluating Exam Wrappers in CS2', 5, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (8, 'Introducing and Evaluating Exam Wrappers in CS2', 6, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (9, 'Introducing and Evaluating Exam Wrappers in CS2', 21, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (10, 'Introducing and Evaluating Exam Wrappers in CS2', 22, 
+    'University of Counter Strike', 'paper', 'rejected');
+INSERT INTO Submissions VALUES (11, 'Introducing and Evaluating Exam Wrappers in CS2', 7, 
+    'University of Counter Strike', 'paper', 'accepted');
 
 INSERT INTO Submissions VALUES (12, 'sadsd', 1, 'asdas', 'paper', 'rejected');
 INSERT INTO Submissions VALUES (13, 'sadsd', 2, 'asdas', 'paper', 'rejected');

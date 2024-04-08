@@ -43,3 +43,4 @@ CREATE VIEW AllAttemptsOfAccepted AS
 
 INSERT INTO q4 (most_submitted_submission)
     SELECT DISTINCT accepted_id FROM AllAttemptsOfAccepted;
+    

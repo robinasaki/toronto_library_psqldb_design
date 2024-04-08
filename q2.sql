@@ -12,3 +12,4 @@ INSERT INTO q2 (person_id, conference_count)
     SELECT DISTINCT person_id, COUNT(DISTINCT conf_id) AS conference_count
     FROM Attends
     GROUP BY person_id;
+    
