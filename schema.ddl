@@ -251,8 +251,12 @@ CREATE TABLE IF NOT EXISTS Sessions (
     CHECK (start_time < end_time)
 );
 
+/*
+    All people registered for each conference.
 
--- People registered for each conference
+    person_id: The person registered for a conference.
+    conf_id: The conference the person is registered for.
+*/
 CREATE TABLE IF NOT EXISTS Attends (
     person_id INT NOT NULL,
     conf_id INT NOT NULL,
