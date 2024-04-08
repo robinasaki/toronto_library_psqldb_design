@@ -1,41 +1,68 @@
 /*
-    Could not:
-        - Prevent anonymous submissions.
-        - Ensure at least one author on each paper must be a reviewer.
-        - Prevent reviewers from reviweing their own submissions/those of
-          co-authors or others in their org.
-        - Require three reviews before accepting, or sub. This requires
-          comparisons between two different tables (Reviews and Submissions)
-          and so requires a trigger.
-        - Prevent previously accepted submissions from being submitted again.
-        - Reqire session chairs to attend the conference, not be an author there,
-          and not have other things scheduled.
-        - Requiring 1+ authors to be registered for the conference.
-        - Requiring a workshop to have a faciliator. 
-        - Requiring conference chairs to have been on the organizing committee at least
-          twice before being conference chair unless the conference is too new.
+===========
+COULD NOT:
+- Prevent reviewers from reviewing their own submissions/those of
+  co-authors or others in their org. This requires data from multiple tables
+  (Reviews, People, Submissions): we would create lists of authors for all 
+  submissions and people from the orgs, then compare the person_id of the 
+  reviewer against the relevant lists, which is not possible with only
+  CHECK and foreign key constraints.
+- Require three reviews before accepting, or sub. This requires
+  comparisons between two different tables (Reviews and Submissions)
+  and so requires a trigger.
+- Prevent previously accepted submissions from being submitted again. This 
+  would require an trigger to check for the existence of an accepted 
+  submission of the same paper/poster.
+- Reqire session chairs to attend the conference, not be an author there,
+  and not have other things scheduled. We would need to check the potential 
+  session chair entry for whether they have registered for that conference 
+  (table Attends), whether they have an accepted submission there (conf_id 
+  and decision in Submissions), and whether any of activities in other 
+  conferences overlap with this conference. This requires a trigger.
+- Require 1+ authors to be registered for the conference. This requires 
+  checking all accepted submissions in Submissions for their authors, then 
+  checking if one or more is registered in Attends; this needs a trigger.
+- Require conference chairs to have been on the organizing committee at 
+  least twice before being conference chair unless the conference is too new.
+  We must check the organizing committee table for the proposed conference
+  chair, to see if they've been on it at least twice for that conference
+  (taking into account if the conference is less than two years old, which 
+  would mean this is not relevant). This requires a trigger.
 
-    All the above constraints require either triggers or assertions, as they require
-    more information than a foreign key constraint or CHECK constraint can manage.
+All the above constraints require either triggers or assertions, as they require
+more information than a foreign key constraint or CHECK constraint can manage.
 
-    Did not:
-        - (Nothing). Any constraints that could be enforced without triggers or assertions
-          were enforced.
+===========
+DID NOT:
+- Require a workshop to have a faciliator. This could have been enforced by 
+  putting the faciliator information inside of Workshops instead of its own 
+  table WorkshopFacilitator, but this could have introduced redundancies if 
+  a workshop had more than 1 facilitator, which is possible. 
+- Prevent anonymous submissions. This would have been possible if we had put 
+  the authors for a submissions in the Submissions table, with all the
+  other submission information, but since there can be multiple, doing so 
+  would have required variable-length arrays/lists, which make it hard to 
+  manipulate/do comparisons; placing authors in a separate table, with one 
+  author per tuple, also facilitated other constraints and data comparisons. 
+- Ensure at least one author on each paper must be a reviewer. Like above, 
+  this would be possible if the authors were in the Submissions table, we 
+  could have had a list of reviewers in each submission tuple. However, this 
+  was not done for the reasons above.
 
-    Extra constraints:
-        - Every author of a paper must have an order number, which MUST be
-          positive. This order number represents their order on the submission.
+===========
+EXTRA CONSTRAINTS:
+- Every author of a paper must have an order number, which MUST be
+  positive. This order number represents their order on the submission.
 
-    Assumptions:    
-        - The name of the conference will uniquely identify a 
-          conference occuring over multiple years
-            (e.g. "SE Conference" can occur in 2015, 2016, 2018)
-        - There is only one chairperson per conference.
-        - Every organization may have different policies related to
-          what a 'student' is, so a 'student' status is not universal
-          for a particular person. 'Student' status is thus determined
-          on a conference-by-conference basis.
-         
+===========
+ASSUMPTIONS:    
+- The name of the conference will uniquely identify a conference occuring 
+  over multiple years (e.g. "SE Conference" can occur in 2015, 2016, 2018)
+- There is only one chairperson per conference.
+- Every organization may have different policies related to what a 'student'
+  is, so a 'student' status is not universal for a particular person. 
+  'Student' status is thus determined on a conference-by-conference basis.
+        
 */
 
 DROP SCHEMA IF EXISTS Conference CASCADE;
