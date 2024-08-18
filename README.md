@@ -1,3 +1,5 @@
-# CSC343 A3
+# Toronto Public Library PSql DB Design
 
-This assignment aims to create a working database schema in PostgreSQL and write some queries according to the provided instructions.
+### CSC343 A3
+
+This project aims to create a working database schema for the Toronto public library service in PostgreSQL and write some queries based on the provided instructions.
